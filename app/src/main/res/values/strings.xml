@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">SCI-AppGeolocator</string>
+
+    <string name="sci">SCI</string>
+    <string name="locator">LOCATOR</string>
+    <string name="service">SERVICE</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_home">HomeActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_register">Register</string>
+</resources>
