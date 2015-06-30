@@ -28,4 +28,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.+'
     compile 'com.squareup.picasso:picasso:2.5.+'
     compile 'com.google.android.gms:play-services:7.5.0'
+    compile 'com.getbase:floatingactionbutton:1.2.1'
 }
