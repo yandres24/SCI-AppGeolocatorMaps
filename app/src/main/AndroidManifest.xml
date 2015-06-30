@@ -24,7 +24,7 @@
             android:value="AIzaSyCbJotfN-pTajwWRHTa5L9J4MePvYS2Lbg" />
         <meta-data
             android:name="com.google.android.gms.version"
-            android:value="7571000" />
+            android:value="@integer/google_play_services_version" />
 
         <activity
             android:name=".MainActivity"
