@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,14 +37,8 @@ public class MainActivity extends ActionBarActivity {
 
         TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
         String deviceId = telephonyManager.getDeviceId();
-        Typeface fontRobo = Typeface.createFromAsset(this.getAssets(), "fonts/moolbor_0.ttf");
-        TextView tVBienvenidaSCI= (TextView) findViewById(R.id.tVBienvenidaSCI);
-        tVBienvenidaSCI.setTypeface(fontRobo);
-        TextView tVBienvenidaLocator= (TextView) findViewById(R.id.tVBienvenidaLocator);
-        tVBienvenidaLocator.setTypeface(fontRobo);
 
-        TextView tVBienvenidaService= (TextView) findViewById(R.id.tVBienvenidaService);
-        tVBienvenidaService.setTypeface(fontRobo);
+        setToolbar();
         new RestOperation().execute(UrlRepository.URL_ImeiIsExist, deviceId);
     }
     private class RestOperation  extends AsyncTask<String,Void,Void> {
@@ -51,7 +46,7 @@ public class MainActivity extends ActionBarActivity {
         String error;
         String data="";
         AlertDialog.Builder alerBuilder= new AlertDialog.Builder(MainActivity.this);
-        ProgressBar pbInicial=(ProgressBar) findViewById(R.id.pbInicial);
+
         protected Void doInBackground(String...params){
             BufferedReader bf=null;
             try {
@@ -125,13 +120,13 @@ public class MainActivity extends ActionBarActivity {
                     descripcionError=jsonObject.getString("DescripcionError");
                     if (state)
                     {
-                        redirection(true);
+                        //redirection(true);
                     }
                     else{
                         System.out.println(descripcionError);
                         if(descripcionError.equals("Ninguno"))
                         {
-                            redirection(false);
+                           // redirection(false);
                         }else{
                             alerBuilder.setMessage("Se ha Presentado un Error: "+descripcionError);
                             alerBuilder.show();
@@ -148,16 +143,16 @@ public class MainActivity extends ActionBarActivity {
         }
 
     }
-    private void redirection(boolean IsRegister){
-        if (IsRegister)
-        {
-            startActivity(new Intent(this, HomeActivity.class));
-        }
-        else{
-            startActivity(new Intent(this, RegisterActivity.class));
-        }
+    //private void redirection(boolean IsRegister){
+       // if (IsRegister)
+    //    {
+      //      startActivity(new Intent(this, HomeActivity.class));
+       // }
+       // else{
+        //    startActivity(new Intent(this, RegisterActivity.class));
+        //}
 
-    }
+//    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -179,4 +174,10 @@ public class MainActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+    public void setToolbar(){
+        Toolbar toolbar=(Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("Geolocator");
+        setSupportActionBar(toolbar);
+    }
+
 }
