@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:overScrollMode="always"
+    android:scrollbarStyle="insideOverlay"
+    android:scrollbars="vertical">
+
+    <LinearLayout
+        android:id="@+id/linearLayoutContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+
+        android:weightSum="1">
+
+        <!-- The main content view -->
+
+
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="244dp"
+            android:id="@+id/listView1"
+            android:layout_weight="1.57" />
+
+
+    </LinearLayout>
+</ScrollView>

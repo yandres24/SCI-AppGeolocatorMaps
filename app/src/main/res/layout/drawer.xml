@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
+    android:background="?android:colorBackground"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:id="@+id/scrollViewNavigationDrawerContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:id="@+id/relativeLayoutScrollViewChild"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:id="@+id/framelayoutDrawerHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/imageViewCover"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/drawer_header_height"
+                    android:contentDescription="@string/drawer_header_image"
+                    android:scaleType="centerCrop"
+                    android:src="@color/md_indigo_500" />
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/drawer_header_height"
+                    android:background="@color/md_black_1000_20" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/drawer_header_height">
+
+
+
+                    <LinearLayout
+                        android:id="@+id/linearLayoutHeaderTexts"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/item_height_avatar_single_line_56_64"
+                        android:layout_alignParentBottom="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginBottom="@dimen/margin_padding_8"
+                        android:layout_marginEnd="@dimen/margin_padding_40"
+                        android:layout_marginLeft="@dimen/margin_padding_16"
+                        android:layout_marginRight="@dimen/margin_padding_40"
+                        android:layout_marginStart="@dimen/margin_padding_16"
+                        android:gravity="center_vertical"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/textViewName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:singleLine="true"
+                            android:text="@string/name"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                            android:textColor="@color/md_text_white" />
+
+
+                        <TextView
+                            android:id="@+id/textViewUsername"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:singleLine="true"
+                            android:text="@string/email"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                            android:textColor="@color/md_secondary_text_icons_white" />
+
+                    </LinearLayout>
+
+
+                    <ImageView
+                        android:id="@+id/imageViewPictureSecond"
+                        android:layout_width="@dimen/profile_picture_small_40"
+                        android:layout_height="@dimen/profile_picture_small_40"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignTop="@+id/imageViewPictureMain"
+                        android:layout_marginEnd="@dimen/margin_padding_16"
+                        android:layout_marginLeft="@dimen/margin_padding_16"
+                        android:layout_marginRight="@dimen/margin_padding_16"
+                        android:layout_marginStart="@dimen/margin_padding_16"
+                        android:clickable="true"
+                        android:scaleType="centerCrop"
+                        android:src="@color/md_red_500" />
+
+                    <ImageView
+                        android:id="@+id/imageViewPictureMain"
+                        android:layout_width="@dimen/profile_picture_64"
+                        android:layout_height="@dimen/profile_picture_64"
+                        android:layout_above="@+id/linearLayoutHeaderTexts"
+                        android:layout_marginBottom="@dimen/margin_padding_4"
+                        android:layout_marginLeft="@dimen/margin_padding_16"
+                        android:layout_marginStart="@dimen/margin_padding_16"
+                        android:clickable="true"
+                        android:scaleType="centerCrop"
+                        android:src="@color/md_red_500" />
+
+                </RelativeLayout>
+
+            </FrameLayout>
+
+            <!-- Content below drawer header -->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/framelayoutDrawerHeader"
+                android:animateLayoutChanges="true"
+                android:orientation="vertical">
+
+                <!-- Manage accounts items (GONE at start) -->
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linearLayoutDrawerMain"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/framelayoutDrawerHeader"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <!-- RecyclerViews, subheaders, and dividers -->
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recyclerViewDrawer1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:overScrollMode="never"
+                    android:scrollbars="vertical" />
+
+                <FrameLayout
+                    android:id="@+id/frameLayoutDrawerItemDivider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="@dimen/margin_padding_8"
+                    android:layout_marginTop="7dp"
+                    android:background="?android:cacheColorHint"
+                    android:clickable="false"
+                    android:visibility="visible" />
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recyclerViewDrawer2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:overScrollMode="never"
+                    android:scrollbars="vertical" />
+
+                <FrameLayout
+                    android:id="@+id/frameLayoutDrawerItemSubheaderDivider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="7dp"
+                    android:background="?android:cacheColorHint"
+                    android:clickable="false" />
+
+                <LinearLayout
+                    android:id="@+id/linearLayoutDrawerItemSubheader"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/margin_padding_48"
+                    android:clickable="false"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/textViewDrawerItemSubheaderTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginEnd="@dimen/margin_padding_16"
+                        android:layout_marginLeft="@dimen/margin_padding_16_24"
+                        android:layout_marginRight="@dimen/margin_padding_16"
+                        android:layout_marginStart="@dimen/margin_padding_16"
+                        android:clickable="false"
+                        android:text="@string/Acciones"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Body2"
+                        android:textColor="?android:textColorSecondary" />
+
+                </LinearLayout>
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recyclerViewDrawer3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:overScrollMode="never"
+                    android:scrollbars="vertical" />
+
+                <FrameLayout
+                    android:id="@+id/frameLayoutDrawerItemDivider2"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="@dimen/margin_padding_8"
+                    android:layout_marginTop="7dp"
+                    android:background="?android:cacheColorHint"
+                    android:clickable="false"
+                    android:visibility="visible" />
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recyclerViewDrawerSettings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:overScrollMode="never"
+                    android:scrollbars="vertical" />
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/navigation_bar_and_padding_64" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </ScrollView>
+
+    <FrameLayout
+        android:id="@+id/frameLayoutSettings1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="?android:colorBackground"
+        android:elevation="6dp"
+        android:translationZ="6dp"
+        android:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <include
+                layout="@layout/drawer_settings_help"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/navigation_bar_height" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+</RelativeLayout>
