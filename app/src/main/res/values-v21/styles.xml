@@ -1,13 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-
-    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
-
-        <!-- Set AppCompat’s color theming attrs -->
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryDark">@color/primaryDark</item>
-        <item name="colorAccent">@color/accent</item>
-    </style>
 
     <style name="AppThemeRedLight" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
@@ -20,6 +12,9 @@
         <item name="android:colorForeground">@color/md_black_1000_75</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeBackground">@color/md_red_500</item>
+        <item name="android:windowTranslucentNavigation">@bool/translucentNavigationBar</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:colorBackground">@color/md_white_1000</item>
         <item name="android:textColorPrimary">@color/md_text</item>
         <item name="android:textColorSecondary">@color/md_secondary_text_icons</item>
@@ -44,6 +39,9 @@
         <item name="android:colorForeground">@color/md_black_1000_75</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeBackground">@color/md_red_500</item>
+        <item name="android:windowTranslucentNavigation">@bool/translucentNavigationBar</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:colorBackground">@color/md_grey_900</item>
         <item name="android:textColorPrimary">@color/md_text_white</item>
         <item name="android:textColorSecondary">@color/md_secondary_text_icons_white</item>
@@ -68,6 +66,9 @@
         <item name="android:colorForeground">@color/md_black_1000_75</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeBackground">@color/md_indigo_500</item>
+        <item name="android:windowTranslucentNavigation">@bool/translucentNavigationBar</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:colorBackground">@color/md_white_1000</item>
         <item name="android:textColorPrimary">@color/md_text</item>
         <item name="android:textColorSecondary">@color/md_secondary_text_icons</item>
@@ -84,7 +85,7 @@
     <style name="AppThemeIndigoDark" parent="Theme.AppCompat.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/md_indigo_500</item>
-        <item name="colorPrimaryDark">@color/md_indigo_500</item>
+        <item name="colorPrimaryDark">@color/md_indigo_700</item>
         <item name="colorAccent">@color/md_pink_A200</item>
         <item name="colorControlHighlight">@color/md_indigo_500_25</item>​
         <item name="colorControlNormal">@color/md_black_1000_50</item>
@@ -92,6 +93,9 @@
         <item name="android:colorForeground">@color/md_black_1000_75</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeBackground">@color/md_indigo_500</item>
+        <item name="android:windowTranslucentNavigation">@bool/translucentNavigationBar</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:colorBackground">@color/md_grey_900</item>
         <item name="android:textColorPrimary">@color/md_text_white</item>
         <item name="android:textColorSecondary">@color/md_secondary_text_icons_white</item>
@@ -101,6 +105,7 @@
         <item name="android:textColorTertiaryInverse">@color/md_disabled_hint_text</item>
         <item name="android:cacheColorHint">@color/md_divider_white</item>
 
+
         <!-- Navigation Drawer Arrow Style. -->
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
     </style>
@@ -109,5 +114,4 @@
         <item name="spinBars">true</item>
         <item name="color">@android:color/white</item>
     </style>
-
 </resources>
