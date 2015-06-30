@@ -10,4 +10,14 @@
         android:layout_height="wrap_content"
         android:id="@+id/textView" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- Your drawer content -->
+
+        <include layout="@layout/drawer" />
+
+    </LinearLayout>
 </RelativeLayout>
