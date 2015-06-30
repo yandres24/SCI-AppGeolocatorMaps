@@ -2,17 +2,33 @@ package com.sci.www.sci_appgeolocator;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
+import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
+
+import com.google.android.gms.maps.GoogleMap;
+import com.sci.www.sci_appgeolocator.Classes.DrawerItem;
+import com.sci.www.sci_appgeolocator.Utils.ItemClickSupport;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -26,9 +42,31 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 
 
 public class MainActivity extends ActionBarActivity {
+    Toolbar toolbar;
+    ActionBarDrawerToggle drawerToggle;
+    DrawerLayout drawerLayout;
+    SharedPreferences sharedPreferences;
+    FrameLayout statusBar, frameLayoutSetting1;
+    RelativeLayout relativeLayoutScrollViewChild;
+    ScrollView scrollViewNavigationDrawerContent;
+    ViewTreeObserver viewTreeObserverNavigationDrawerScrollView;
+    ViewTreeObserver.OnScrollChangedListener onScrollChangedListener;
+    RecyclerView recyclerViewDrawer1, recyclerViewDrawer2, recyclerViewDrawer3, recyclerViewDrawerSettings;
+    RecyclerView.Adapter drawerAdapter1, drawerAdapter2, drawerAdapter3, drawerAdapterSettings;
+    ArrayList<DrawerItem> drawerItems1, drawerItems2, drawerItems3, drawerItemsSettings;
+    float drawerHeight, scrollViewHeight;
+    LinearLayoutManager linearLayoutManager, linearLayoutManager2, linearLayoutManager3, linearLayoutManagerSettings;
+    ItemClickSupport itemClickSupport1, itemClickSupport2, itemClickSupport3;
+    TypedValue typedValueColorPrimary, typedValueTextColorPrimary, typedValueTextColorControlHighlight, typedValueColorBackground;
+    int colorPrimary, textColorPrimary, colorControlHighlight, colorBackground;
+    ListView listView;
+    GoogleMap mapa;
+    String deviceId;
+    LocationManager locationManager = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
