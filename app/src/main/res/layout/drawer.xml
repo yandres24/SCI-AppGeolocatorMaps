@@ -144,7 +144,6 @@
                     android:layout_height="1dp"
                     android:layout_marginBottom="@dimen/margin_padding_8"
                     android:layout_marginTop="7dp"
-                    android:background="?android:cacheColorHint"
                     android:clickable="false"
                     android:visibility="visible" />
 
@@ -160,7 +159,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_marginTop="7dp"
-                    android:background="?android:cacheColorHint"
                     android:clickable="false" />
 
                 <LinearLayout
@@ -199,7 +197,6 @@
                     android:layout_height="1dp"
                     android:layout_marginBottom="@dimen/margin_padding_8"
                     android:layout_marginTop="7dp"
-                    android:background="?android:cacheColorHint"
                     android:clickable="false"
                     android:visibility="visible" />
 

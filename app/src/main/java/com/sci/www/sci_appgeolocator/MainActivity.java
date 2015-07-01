@@ -46,28 +46,6 @@ import java.util.ArrayList;
 
 
 public class MainActivity extends ActionBarActivity {
-    Toolbar toolbar;
-    ActionBarDrawerToggle drawerToggle;
-    DrawerLayout drawerLayout;
-    SharedPreferences sharedPreferences;
-    FrameLayout statusBar, frameLayoutSetting1;
-    RelativeLayout relativeLayoutScrollViewChild;
-    ScrollView scrollViewNavigationDrawerContent;
-    ViewTreeObserver viewTreeObserverNavigationDrawerScrollView;
-    ViewTreeObserver.OnScrollChangedListener onScrollChangedListener;
-    RecyclerView recyclerViewDrawer1, recyclerViewDrawer2, recyclerViewDrawer3, recyclerViewDrawerSettings;
-    RecyclerView.Adapter drawerAdapter1, drawerAdapter2, drawerAdapter3, drawerAdapterSettings;
-    ArrayList<DrawerItem> drawerItems1, drawerItems2, drawerItems3, drawerItemsSettings;
-    float drawerHeight, scrollViewHeight;
-    LinearLayoutManager linearLayoutManager, linearLayoutManager2, linearLayoutManager3, linearLayoutManagerSettings;
-    ItemClickSupport itemClickSupport1, itemClickSupport2, itemClickSupport3;
-    TypedValue typedValueColorPrimary, typedValueTextColorPrimary, typedValueTextColorControlHighlight, typedValueColorBackground;
-    int colorPrimary, textColorPrimary, colorControlHighlight, colorBackground;
-    ListView listView;
-    GoogleMap mapa;
-    String deviceId;
-    LocationManager locationManager = null;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -158,13 +136,13 @@ public class MainActivity extends ActionBarActivity {
                     descripcionError=jsonObject.getString("DescripcionError");
                     if (state)
                     {
-                        //redirection(true);
+                        redirection(true);
                     }
                     else{
                         System.out.println(descripcionError);
                         if(descripcionError.equals("Ninguno"))
                         {
-                           // redirection(false);
+                            redirection(false);
                         }else{
                             alerBuilder.setMessage("Se ha Presentado un Error: "+descripcionError);
                             alerBuilder.show();
@@ -181,16 +159,17 @@ public class MainActivity extends ActionBarActivity {
         }
 
     }
-    //private void redirection(boolean IsRegister){
-       // if (IsRegister)
-    //    {
-      //      startActivity(new Intent(this, HomeActivity.class));
-       // }
-       // else{
-        //    startActivity(new Intent(this, RegisterActivity.class));
-        //}
 
-//    }
+    private void redirection(boolean IsRegister){
+        if (IsRegister)
+        {
+            startActivity(new Intent(this, HomeActivity.class));
+        }
+        else{
+            startActivity(new Intent(this, RegisterActivity.class));
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
