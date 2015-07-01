@@ -94,7 +94,7 @@ public class HomeActivity extends ActionBarActivity {
     }
 
     private void setupListView() {
-        // Obtener el IMEI del teléfono
+        // Obtener el IMEI del telefono
         TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
         deviceId = telephonyManager.getDeviceId();
 
@@ -115,8 +115,8 @@ public class HomeActivity extends ActionBarActivity {
         SupportMapFragment supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapa = supportMapFragment.getMap();
         // establecer tipo de mapa
-        mapa.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-        //mapa.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        //mapa.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        mapa.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mapa.setMyLocationEnabled(true);
         locationManager = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
         LocationListener locationListener = new LocationListener() {
@@ -162,7 +162,7 @@ public class HomeActivity extends ActionBarActivity {
             //String locationText = "Latitud :"+location.getLatitude() + "/ Longitud :" + location.getLongitude();
 
             // LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
-            // mapa.addMarker(new MarkerOptions().position(latLng)).setTitle("Aquí estoy Yo");
+            // mapa.addMarker(new MarkerOptions().position(latLng)).setTitle("Aqui estoy Yo");
 
             //LatLngBounds bounds = new LatLngBounds(latLng,latLng);
             //mapa.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0));
