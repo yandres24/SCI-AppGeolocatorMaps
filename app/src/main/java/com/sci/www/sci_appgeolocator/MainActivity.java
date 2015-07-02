@@ -46,6 +46,7 @@ import java.util.ArrayList;
 
 
 public class MainActivity extends ActionBarActivity {
+    private static long SLEEP_TIME = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +58,20 @@ public class MainActivity extends ActionBarActivity {
         setToolbar();
         new RestOperation().execute(UrlRepository.URL_ImeiIsExist, deviceId);
     }
+
+    public void run() {
+        try {
+            // Sleeping
+            Thread.sleep(SLEEP_TIME*2000);
+        } catch (Exception e) {
+
+        }
+        // Start main activity
+        //Intent intent = new Intent(MainActivity.this, MainActivity.class);
+        //MainActivity.this.startActivity(intent);
+        //MainActivity.this.finish();
+    }
+
     private class RestOperation  extends AsyncTask<String,Void,Void> {
         String content;
         String error;
@@ -163,9 +178,11 @@ public class MainActivity extends ActionBarActivity {
     private void redirection(boolean IsRegister){
         if (IsRegister)
         {
+            run();
             startActivity(new Intent(this, HomeActivity.class));
         }
         else{
+            run();
             startActivity(new Intent(this, RegisterActivity.class));
         }
     }
