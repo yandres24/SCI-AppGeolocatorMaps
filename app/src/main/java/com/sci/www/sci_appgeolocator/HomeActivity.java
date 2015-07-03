@@ -2,6 +2,7 @@ package com.sci.www.sci_appgeolocator;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -27,6 +28,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -40,11 +42,12 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.sci.www.sci_appgeolocator.Adapters.DrawerAdapter;
 import com.sci.www.sci_appgeolocator.Classes.DrawerItem;
+import com.sci.www.sci_appgeolocator.Classes.GpsBo;
 import com.sci.www.sci_appgeolocator.Utils.CircleTransform;
 import com.sci.www.sci_appgeolocator.Utils.ItemClickSupport;
 
 import java.util.ArrayList;
-import com.sci.www.sci_appgeolocator.R;
+
 import com.squareup.picasso.Picasso;
 
 import org.apache.http.HttpResponse;
@@ -56,33 +59,40 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class HomeActivity extends ActionBarActivity {
+
+    // Objetos de Diseño
     Toolbar toolbar;
-    ActionBarDrawerToggle drawerToggle;
+    ListView listView;
+    GoogleMap mapa;
+    String deviceId;
+    Button btnActualizar;
     DrawerLayout drawerLayout;
-    SharedPreferences sharedPreferences;
+    ActionBarDrawerToggle drawerToggle;
     FrameLayout statusBar, frameLayoutSetting1;
     RelativeLayout relativeLayoutScrollViewChild;
     ScrollView scrollViewNavigationDrawerContent;
     ViewTreeObserver viewTreeObserverNavigationDrawerScrollView;
     ViewTreeObserver.OnScrollChangedListener onScrollChangedListener;
-    RecyclerView recyclerViewDrawer1, recyclerViewDrawer2, recyclerViewDrawer3, recyclerViewDrawerSettings;
-    RecyclerView.Adapter drawerAdapter1, drawerAdapter2, drawerAdapter3, drawerAdapterSettings;
-    ArrayList<DrawerItem> drawerItems1, drawerItems2, drawerItems3, drawerItemsSettings;
-    float drawerHeight, scrollViewHeight;
-    LinearLayoutManager linearLayoutManager, linearLayoutManager2, linearLayoutManager3, linearLayoutManagerSettings;
     ItemClickSupport itemClickSupport1, itemClickSupport2, itemClickSupport3;
+    ArrayList<DrawerItem> drawerItems1, drawerItems2, drawerItems3, drawerItemsSettings;
+    RecyclerView.Adapter drawerAdapter1, drawerAdapter2, drawerAdapter3, drawerAdapterSettings;
+    RecyclerView recyclerViewDrawer1, recyclerViewDrawer2, recyclerViewDrawer3, recyclerViewDrawerSettings;
+    LinearLayoutManager linearLayoutManager, linearLayoutManager2, linearLayoutManager3, linearLayoutManagerSettings;
     TypedValue typedValueColorPrimary, typedValueTextColorPrimary, typedValueTextColorControlHighlight, typedValueColorBackground;
-    int colorPrimary, textColorPrimary, colorControlHighlight, colorBackground;
-    ListView listView;
-    GoogleMap mapa;
-    String deviceId;
-    LocationManager locationManager = null;
-    String [] visitasFalsas = {
-            "Calle 34 # 41-15 -14:00",
-            "Av. 72 # 30-15 -15:45",
-            "Calle 100 # 10-15 -18:00"
 
-    };
+    //Variables
+    float drawerHeight, scrollViewHeight;
+    int colorPrimary, textColorPrimary, colorControlHighlight, colorBackground;
+
+    //Objetos Gps
+    LocationManager locationManager = null;
+
+    //Classes
+    private GpsBo classGps;
+
+    //Shared Preferences
+    SharedPreferences sharedPreferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setupTheme();
@@ -100,153 +110,14 @@ public class HomeActivity extends ActionBarActivity {
         setupNavigationDrawer();
         setupMap();
         setupListView();
-    }
-
-    private void setupListView() {
-        // Obtener el IMEI del telefono
-        TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-        deviceId = telephonyManager.getDeviceId();
-
-        // TODO: A traves del IEMI de l telefono verificar las visitas del usuario
-        listView = (ListView) findViewById(R.id.listView1);
-
-        TareaWSListar tarea = new TareaWSListar();
-        tarea.execute(deviceId);
-    }
-
-    private class TareaWSListar extends AsyncTask<String,Integer,Boolean> {
-
-        private String[] visitas;
-
-        protected Boolean doInBackground(String... params) {
-
-            boolean resul = true;
-            String id = params[0];
-
-            HttpGet del =
-                    new HttpGet("http://186.147.35.26:8082/DeveloperServices/api/ProgVisita/ObtenerVisitas?idUser=" + id);
-
-            del.setHeader("content-type", "application/json");
-            HttpClient httpClient = new DefaultHttpClient();
-
-            try
-            {
-                HttpResponse resp = httpClient.execute(del);
-                String respStr = EntityUtils.toString(resp.getEntity());
-
-                JSONArray respJSON = new JSONArray(respStr);
-
-                visitas = new String[respJSON.length()];
-
-                for(int i=0; i<respJSON.length(); i++)
-                {
-                    JSONObject obj = respJSON.getJSONObject(i);
-
-                    int idVisitaPk = obj.getInt("progvis_IdVisita_Pk");
-                    String Direccion = obj.getString("progvis_Direccion");
-
-                    visitas[i] = "" + idVisitaPk + "-" + Direccion;
-                }
+        btnActualizar = (Button)findViewById(R.id.BtnActualizar);
+        btnActualizar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setupMap();
             }
-            catch(Exception ex)
-            {
-                Log.e("ServicioRest","Error!", ex);
-                resul = false;
-            }
-
-            return resul;
-        }
-
-        protected void onPostExecute(Boolean result) {
-
-            if (result)
-            {
-                //Rellenamos la lista con los nombres de los clientes
-                //Rellenamos la lista con los resultados
-                ArrayAdapter<String> adapter= new ArrayAdapter<String>(HomeActivity.this,android.R.layout.simple_list_item_single_choice,visitas);
-                listView.setAdapter(adapter);
-
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Toast.makeText(getApplicationContext(), "Visita " + position, Toast.LENGTH_LONG).show();
-                    }
-                });
-
-                //ArrayAdapter<String> adaptador =
-                //new ArrayAdapter<String>(MainActivity.this,
-                //android.R.layout.simple_list_item_1, visitas);
-
-                //ListDirec.setAdapter(adaptador);
-            }
-        }
+        });
     }
-
-    private void setupMap(){
-        SupportMapFragment supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapa = supportMapFragment.getMap();
-        // establecer tipo de mapa
-        //mapa.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-        mapa.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        mapa.setMyLocationEnabled(true);
-        locationManager = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
-        LocationListener locationListener = new LocationListener() {
-
-            public void onLocationChanged(Location location) {
-                updateLocation(location);
-            }
-            public void onStatusChanged(String provider, int status, Bundle extras) { }
-            public void onProviderEnabled(String provider) { }
-            public void onProviderDisabled(String provider) {}
-        };
-        try{
-            boolean isActive = locationManager.isProviderEnabled((LocationManager.GPS_PROVIDER));
-            if(isActive){
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListener);
-            }
-            else{
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,0,0,locationListener);
-            }
-
-        }
-        catch(Exception ex){
-            Log.e("Error", ex.getMessage());
-        }
-    }
-
-    private void updateLocation(){
-        boolean isActive = locationManager.isProviderEnabled((LocationManager.GPS_PROVIDER));
-        Location loc = null;
-        if(isActive) loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        else loc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-
-        updateLocation(loc);
-
-
-    }
-
-    private void updateLocation(Location location){
-
-        //TextView tv = (TextView)findViewById(R.id.txtGeolocation);
-        if(location != null){
-            location = mapa.getMyLocation();
-            //String locationText = "Latitud :"+location.getLatitude() + "/ Longitud :" + location.getLongitude();
-
-            // LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
-            // mapa.addMarker(new MarkerOptions().position(latLng)).setTitle("Aqui estoy Yo");
-
-            //LatLngBounds bounds = new LatLngBounds(latLng,latLng);
-            //mapa.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0));
-
-            //tv.setText(locationText);
-        }
-        else{
-            //tv.setText("Sin datos");
-        }
-
-
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -270,9 +141,170 @@ public class HomeActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    //Cargar lista direcciones
+    private void setupListView() {
+        // Obtener el IMEI del telefono
+        TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+        deviceId = telephonyManager.getDeviceId();
 
-    //Menu navegacion :)
+        // TODO: A traves del IEMI de l telefono verificar las visitas del usuario
+        listView = (ListView) findViewById(R.id.listView1);
 
+        TareaWSListar tarea = new TareaWSListar();
+        tarea.execute(deviceId);
+    }
+
+    //Tarea Asincrona para cargar la lista de las direcciones dependientdo el usuario
+    private class TareaWSListar extends AsyncTask<String,Integer,Boolean> {
+
+        private String[] visitas;
+        private String[] posiciones;
+
+        protected Boolean doInBackground(String... params) {
+
+            boolean resul = true;
+            String id = params[0];
+
+            HttpGet del =
+                    new HttpGet("http://186.147.35.26:8082/DeveloperServices/api/ProgVisita/ObtenerVisitas?idUser=" + id);
+
+            del.setHeader("content-type", "application/json");
+            HttpClient httpClient = new DefaultHttpClient();
+
+            try
+            {
+                HttpResponse resp = httpClient.execute(del);
+                String respStr = EntityUtils.toString(resp.getEntity());
+
+                JSONArray respJSON = new JSONArray(respStr);
+
+                visitas = new String[respJSON.length()];
+                posiciones = new String[respJSON.length()];
+
+                for(int i=0; i<respJSON.length(); i++)
+                {
+                    JSONObject obj = respJSON.getJSONObject(i);
+
+                    int idVisitaPk = obj.getInt("progvis_IdVisita_Pk");
+                    String Direccion = obj.getString("progvis_Direccion");
+                    String Latitud = obj.getString("progvis_Latitud");
+                    String Longitud = obj.getString("progvis_Longitd");
+
+                    visitas[i] = "" + idVisitaPk + "-" + Direccion;
+                    posiciones[i] = Latitud + "," + Longitud;
+                }
+            }
+            catch(Exception ex)
+            {
+                Log.e("ServicioRest","Error!", ex);
+                resul = false;
+            }
+
+            return resul;
+        }
+
+        protected void onPostExecute(Boolean result) {
+
+            if (result)
+            {
+                //Rellenamos la lista con los nombres de los clientes
+                //Rellenamos la lista con los resultados
+                ArrayAdapter<String> adapter= new ArrayAdapter<String>(HomeActivity.this,android.R.layout.simple_list_item_single_choice,visitas);
+                listView.setAdapter(adapter);
+
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        String Objeto[] = posiciones[position].split(",");
+                        String Latitud = Objeto[0];
+                        String Longitud = Objeto[1];
+                        Toast.makeText(getApplicationContext(), "Latitud:  " + Latitud + ", Longitud: " + Longitud, Toast.LENGTH_LONG).show();
+                    }
+                });
+
+                //listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    //@Override
+                    //public void onItemClick(AdapterView<?> parent, View view, int position,
+                                            //long id) {
+
+                        //String item = ((TextView)view).getText().toString();
+
+                        //Toast.makeText(getBaseContext(), item, Toast.LENGTH_LONG).show();
+
+                    //}
+                //});
+                //ArrayAdapter<String> adaptador =
+                //new ArrayAdapter<String>(MainActivity.this,
+                //android.R.layout.simple_list_item_1, visitas);
+
+                //ListDirec.setAdapter(adaptador);
+            }
+        }
+    }
+
+    //Instalar el mapa
+    private void setupMap(){
+        SupportMapFragment supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapa = supportMapFragment.getMap();
+        // establecer tipo de mapa
+        //mapa.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        mapa.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        mapa.setMyLocationEnabled(true);
+        locationManager = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
+        LocationListener locationListener = new LocationListener() {
+
+            public void onLocationChanged(Location location) {
+                updateLocation(location);
+            }
+            public void onStatusChanged(String provider, int status, Bundle extras) { }
+            public void onProviderEnabled(String provider) { }
+            public void onProviderDisabled(String provider) {}
+        };
+        try{
+            boolean isActive = locationManager.isProviderEnabled((LocationManager.GPS_PROVIDER));
+            if(isActive){
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+            }
+            else{
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+            }
+            updateLocation(mapa.getMyLocation());
+            locationManager.requestLocationUpdates(
+                    LocationManager.GPS_PROVIDER, 3000, 0, locationListener);
+        }
+        catch(Exception ex){
+            Log.e("Error", ex.getMessage());
+        }
+    }
+
+    //Actualizar Ubicacion
+    private void updateLocation(Location location){
+        try {
+            TextView tv = (TextView) findViewById(R.id.txtGeolocation);
+            if (location != null) {
+                location = mapa.getMyLocation();
+                //navigator.geolocation.getCurrentPosition(funcExito, funcError, opciones);
+                String locationText = "Latitud :" + location.getLatitude() + "/ Longitud :" + location.getLongitude() +
+                        "/ Velocidad: " + location.getSpeed() + "/ Altitud: " + location.getAltitude() + "/ Status: " + GpsStatus.GPS_EVENT_SATELLITE_STATUS;
+
+                //LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                //mapa.addMarker(new MarkerOptions().position(latLng)).setTitle("Aqui estoy Yo");
+
+                //LatLngBounds bounds = new LatLngBounds(latLng, latLng);
+                //mapa.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0));
+
+                classGps.onGpsStatus(GpsStatus.GPS_EVENT_SATELLITE_STATUS);
+                tv.setText(locationText);
+            } else {
+                tv.setText("Sin datos");
+            }
+        }
+        catch(Exception ex){
+            Log.e("Error", ex.getMessage());
+        }
+    }
+
+    //Instalar Thema por defecto de la app :).
     public void setupTheme() {
 
         // TODO: Desde un servicio llenar las preferencias de tema del usuario
@@ -293,8 +325,8 @@ public class HomeActivity extends ActionBarActivity {
         }
     }
 
+    //Menu, De aqui hasta el final son metodos para el Menu.
     public void setupNavigationDrawer() {
-
         // Setup Navigation drawer
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
 
@@ -426,7 +458,6 @@ public class HomeActivity extends ActionBarActivity {
     }
 
     private void setupNavigationDrawerRecyclerViews() {
-
         // RecyclerView 1
         recyclerViewDrawer1 = (RecyclerView) findViewById(R.id.recyclerViewDrawer1);
         linearLayoutManager = new LinearLayoutManager(HomeActivity.this);
@@ -783,7 +814,6 @@ public class HomeActivity extends ActionBarActivity {
         ImageView imageViewDrawerItemIcon = (ImageView) rv.getChildAt(position).findViewById(R.id.imageViewDrawerItemIcon);
         TextView textViewDrawerItemTitle = (TextView) rv.getChildAt(position).findViewById(R.id.textViewDrawerItemTitle);
         LinearLayout linearLayoutItem = (LinearLayout) rv.getChildAt(position).findViewById(R.id.linearLayoutItem);
-
     }
 
     public int convertDpToPx(int dp) {
@@ -792,5 +822,4 @@ public class HomeActivity extends ActionBarActivity {
         // Convert the dps to pixels, based on density scale
         return (int) (dp * scale + 0.5f);
     }
-
 }

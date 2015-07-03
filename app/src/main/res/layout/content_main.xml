@@ -26,6 +26,16 @@
             android:id="@+id/listView1"
             android:layout_weight="1.57" />
 
+        <Button android:id="@+id/BtnActualizar"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Activar" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:id="@+id/txtGeolocation" />
+
 
     </LinearLayout>
 </ScrollView>
