@@ -1,5 +1,6 @@
 package com.sci.www.sci_appgeolocator;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.GpsStatus;
@@ -47,12 +48,15 @@ import com.sci.www.sci_appgeolocator.Utils.CircleTransform;
 import com.sci.www.sci_appgeolocator.Utils.ItemClickSupport;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import com.squareup.picasso.Picasso;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
@@ -117,28 +121,6 @@ public class HomeActivity extends ActionBarActivity {
                 setupMap();
             }
         });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_home, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     //Cargar lista direcciones
@@ -223,15 +205,15 @@ public class HomeActivity extends ActionBarActivity {
                 });
 
                 //listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    //@Override
-                    //public void onItemClick(AdapterView<?> parent, View view, int position,
-                                            //long id) {
+                //@Override
+                //public void onItemClick(AdapterView<?> parent, View view, int position,
+                //long id) {
 
-                        //String item = ((TextView)view).getText().toString();
+                //String item = ((TextView)view).getText().toString();
 
-                        //Toast.makeText(getBaseContext(), item, Toast.LENGTH_LONG).show();
+                //Toast.makeText(getBaseContext(), item, Toast.LENGTH_LONG).show();
 
-                    //}
+                //}
                 //});
                 //ArrayAdapter<String> adaptador =
                 //new ArrayAdapter<String>(MainActivity.this,
@@ -270,10 +252,46 @@ public class HomeActivity extends ActionBarActivity {
             }
             updateLocation(mapa.getMyLocation());
             locationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER, 3000, 0, locationListener);
+                    LocationManager.GPS_PROVIDER, 200000, 0, locationListener);
         }
         catch(Exception ex){
             Log.e("Error", ex.getMessage());
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_home, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void onGpsStatus(int event) {
+        Log.e("onGpsStatusChanged", event + "");
+        switch (event) {
+            case (GpsStatus.GPS_EVENT_SATELLITE_STATUS):
+                System.out.println(GpsStatus.GPS_EVENT_SATELLITE_STATUS);
+            case GpsStatus.GPS_EVENT_STARTED:
+                Log.e("onGpsStatusChanged", "GPS_EVENT_STARTED");
+                break;
+            case GpsStatus.GPS_EVENT_STOPPED:
+                Log.e("onGpsStatusChanged", "GPS_EVENT_STOPPED");
+                break;
         }
     }
 
@@ -293,8 +311,35 @@ public class HomeActivity extends ActionBarActivity {
                 //LatLngBounds bounds = new LatLngBounds(latLng, latLng);
                 //mapa.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0));
 
-                classGps.onGpsStatus(GpsStatus.GPS_EVENT_SATELLITE_STATUS);
+                onGpsStatus(GpsStatus.GPS_EVENT_SATELLITE_STATUS);
                 tv.setText(locationText);
+
+                String IdVisita = "1";
+                String IdUsuario = "354984054602948".toString();
+                String Imei = deviceId;
+                String Longitud = "" + location.getLongitude();
+                String Latitud = "" + location.getLatitude();
+                String Velocidad = "" + location.getSpeed();
+                String Altitud = "" + location.getAltitude();
+                String Rumbo = "-53.000000";
+                String Fecha = "" + location.getTime();
+                String Hora = "" + location.getTime();
+                String EstadoGps = "" + GpsStatus.GPS_EVENT_SATELLITE_STATUS;
+
+                TareaWSInsertar tarea = new TareaWSInsertar();
+                tarea.execute(
+                        IdVisita.toString(),
+                        IdUsuario.toString(),
+                        Imei.toString(),
+                        Longitud.toString(),
+                        Latitud.toString(),
+                        Velocidad.toString(),
+                        Altitud.toString(),
+                        Rumbo.toString(),
+                        Fecha.toString(),
+                        Hora.toString(),
+                        EstadoGps.toString());
+
             } else {
                 tv.setText("Sin datos");
             }
@@ -302,6 +347,81 @@ public class HomeActivity extends ActionBarActivity {
         catch(Exception ex){
             Log.e("Error", ex.getMessage());
         }
+    }
+
+    //Tarea As íncrona para llamar al WS de inserción en segundo plano
+    public class TareaWSInsertar extends AsyncTask<String,Integer,Boolean> {
+        AlertDialog.Builder alertDialog=new AlertDialog.Builder(HomeActivity.this);
+        protected Boolean doInBackground(String... params) {
+            boolean resul = true;
+
+            HttpClient httpClient = new DefaultHttpClient();
+            //HttpPost post = new HttpPost("http://192.168.0.100:8082/DeveloperServices/api/Usuarios/InsertAgente");
+            HttpPost post = new HttpPost("http://186.147.35.26:8082/DeveloperServices/api/Trazo/InsertTrazoVisita");
+            post.setHeader("content-type", "application/json");
+
+            try
+            {
+                JSONObject data = new JSONObject();
+
+                //Construimos el objeto cliente en formato JSON
+                //dato.put("Id", Integer.parseInt(txtId.getText().toString()));
+                data.put("IdVisita", params[0]);
+                data.put("IdUsuario", params[1]);
+                data.put("Imei", params[2]);
+                data.put("Longitud", params[3]);
+                data.put("Latitud", params[4]);
+                data.put("Velocidad", params[5]);
+                data.put("Altitud", params[6]);
+                data.put("Rumbo", params[7]);
+                data.put("Fecha", params[8]);
+                data.put("Hora", params[9]);
+                data.put("EstadoGps", params[10]);
+
+                StringEntity entity = new StringEntity(data.toString());
+                post.setEntity(entity);
+
+                HttpResponse resp = httpClient.execute(post);
+                String respStr = EntityUtils.toString(resp.getEntity());
+                JSONArray respJSON = new JSONArray(respStr);
+
+                boolean state = false;
+                String httpStatusCode;
+                int codError;
+                String descripcionError;
+
+                for(int i=0; i<respJSON.length(); i++)
+                {
+                    JSONObject obj = respJSON.getJSONObject(i);
+
+                    state = obj.getBoolean("State");
+                    httpStatusCode = obj.getString("HttpStatusCode");
+                    codError = obj.getInt("CodError");
+                    descripcionError = obj.getString("DescripcionError");
+                }
+                resul = state;
+            }
+            catch(Exception ex)
+            {
+                Log.e("ServicioRest","Error!", ex);
+                resul = false;
+            }
+
+            return resul;
+        }
+        protected void onPostExecute(Boolean result) {
+
+            if (result)
+            {
+                alertDialog.setMessage("Proceso Completado.");
+                alertDialog.show();
+            }
+            else{
+                alertDialog.setMessage("Proceso No Completado.");
+                alertDialog.show();
+            }
+        }
+        protected void Redirigir(){}
     }
 
     //Instalar Thema por defecto de la app :).
