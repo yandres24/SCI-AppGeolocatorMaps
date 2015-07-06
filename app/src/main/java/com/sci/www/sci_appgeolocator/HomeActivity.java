@@ -1,7 +1,9 @@
 package com.sci.www.sci_appgeolocator;
 
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.GpsStatus;
 import android.location.Location;
@@ -44,6 +46,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.sci.www.sci_appgeolocator.Adapters.DrawerAdapter;
 import com.sci.www.sci_appgeolocator.Classes.DrawerItem;
 import com.sci.www.sci_appgeolocator.Classes.GpsBo;
+import com.sci.www.sci_appgeolocator.Services.MyService;
 import com.sci.www.sci_appgeolocator.Utils.CircleTransform;
 import com.sci.www.sci_appgeolocator.Utils.ItemClickSupport;
 import com.sci.www.sci_appgeolocator.Services.InsertMapping;
@@ -96,7 +99,7 @@ public class HomeActivity extends ActionBarActivity {
     private GpsBo classGps;
 
     //Services
-    private InsertMapping MappingService;
+    private InsertMapping mBoundService;
 
     //Shared Preferences
     SharedPreferences sharedPreferences;
@@ -330,21 +333,40 @@ public class HomeActivity extends ActionBarActivity {
                 String Hora = "" + location.getTime();
                 String EstadoGps = "" + GpsStatus.GPS_EVENT_SATELLITE_STATUS;
 
-                //TareaWSInsertar tarea = new TareaWSInsertar();
+                // use this to start and trigger a service
+                Intent i= new Intent(this, MyService.class);
+                // potentially add data to the intent
+                i.putExtra("KEY1", "Value to be used by the service");
+                this.startService(i);
+
+                Intent i2= new Intent(this, InsertMapping.class);
+                i2.putExtra(IdVisita,IdVisita.toString());
+                i2.putExtra(IdUsuario, IdVisita.toString());
+                i2.putExtra(Imei,IdVisita.toString());
+                i2.putExtra(Longitud,IdVisita.toString());
+                i2.putExtra(Latitud,IdVisita.toString());
+                i2.putExtra(Velocidad,IdVisita.toString());
+                i2.putExtra(Altitud,IdVisita.toString());
+                i2.putExtra(Rumbo,IdVisita.toString());
+                i2.putExtra(Fecha,IdVisita.toString());
+                i2.putExtra(Hora,IdVisita.toString());
+                i2.putExtra(EstadoGps,IdVisita.toString());
+                this.startService(i2);
+
                 //MappingService tarea1 = new MappingService();
-                TareaWSInsertar tarea = new TareaWSInsertar();
-                tarea.execute(
-                        IdVisita.toString(),
-                        IdUsuario.toString(),
-                        Imei.toString(),
-                        Longitud.toString(),
-                        Latitud.toString(),
-                        Velocidad.toString(),
-                        Altitud.toString(),
-                        Rumbo.toString(),
-                        Fecha.toString(),
-                        Hora.toString(),
-                        EstadoGps.toString());
+                //TareaWSInsertar tarea = new TareaWSInsertar();
+                //tarea.execute(
+                        //IdVisita.toString(),
+                        //IdUsuario.toString(),
+                        //Imei.toString(),
+                        //Longitud.toString(),
+                        //Latitud.toString(),
+                        //Velocidad.toString(),
+                        //Altitud.toString(),
+                        //Rumbo.toString(),
+                        //Fecha.toString(),
+                        //Hora.toString(),
+                        //EstadoGps.toString());
 
             } else {
                 tv.setText("Sin datos");

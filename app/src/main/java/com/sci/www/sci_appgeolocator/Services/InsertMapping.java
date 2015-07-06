@@ -17,9 +17,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class InsertMapping extends Service {
-    //Tarea As íncrona para llamar al WS de inserción en segundo plano
-    public class PostInsertMapping extends AsyncTask<String,Integer,Boolean> {
-        protected Boolean doInBackground(String... params) {
+    //Tarea Asincrona para llamar al WS de insercion en segundo plano
+        public boolean PostInsertMapping (String IdVisita,String IdUsuario,String Imei,String Longitud,
+                                          String Latitud,String Velocidad,String Altitud,String Rumbo,
+                                          String Fecha,String Hora,String EstadoGps) {
             boolean resul = true;
 
             HttpClient httpClient = new DefaultHttpClient();
@@ -33,17 +34,17 @@ public class InsertMapping extends Service {
 
                 //Construimos el objeto cliente en formato JSON
                 //dato.put("Id", Integer.parseInt(txtId.getText().toString()));
-                data.put("IdVisita", params[0]);
-                data.put("IdUsuario", params[1]);
-                data.put("Imei", params[2]);
-                data.put("Longitud", params[3]);
-                data.put("Latitud", params[4]);
-                data.put("Velocidad", params[5]);
-                data.put("Altitud", params[6]);
-                data.put("Rumbo", params[7]);
-                data.put("Fecha", params[8]);
-                data.put("Hora", params[9]);
-                data.put("EstadoGps", params[10]);
+                data.put("IdVisita", IdVisita);
+                data.put("IdUsuario", IdUsuario);
+                data.put("Imei", Imei);
+                data.put("Longitud", Longitud);
+                data.put("Latitud", Latitud);
+                data.put("Velocidad", Velocidad);
+                data.put("Altitud", Altitud);
+                data.put("Rumbo", Rumbo);
+                data.put("Fecha", Fecha);
+                data.put("Hora", Hora);
+                data.put("EstadoGps", EstadoGps);
 
                 StringEntity entity = new StringEntity(data.toString());
                 post.setEntity(entity);
@@ -73,9 +74,7 @@ public class InsertMapping extends Service {
                 Log.e("ServicioRest", "Error!", ex);
                 resul = false;
             }
-
             return resul;
-        }
     }
 
     @Override
