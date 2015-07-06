@@ -49,7 +49,7 @@ import com.sci.www.sci_appgeolocator.Utils.ItemClickSupport;
 
 import java.util.ArrayList;
 import java.util.Date;
-
+import android.app.Service;
 import com.squareup.picasso.Picasso;
 
 import org.apache.http.HttpResponse;
@@ -225,7 +225,7 @@ public class HomeActivity extends ActionBarActivity {
     }
 
     //Instalar el mapa
-    private void setupMap(){
+    private void setupMap() {
         SupportMapFragment supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapa = supportMapFragment.getMap();
         // establecer tipo de mapa
@@ -296,7 +296,7 @@ public class HomeActivity extends ActionBarActivity {
     }
 
     //Actualizar Ubicacion
-    private void updateLocation(Location location){
+    private void updateLocation(Location location) {
         try {
             TextView tv = (TextView) findViewById(R.id.txtGeolocation);
             if (location != null) {
