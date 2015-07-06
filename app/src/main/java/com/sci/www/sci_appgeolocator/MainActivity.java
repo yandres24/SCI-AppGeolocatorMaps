@@ -53,20 +53,19 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-        //String deviceId = telephonyManager.getDeviceId();
+        String deviceId = telephonyManager.getDeviceId();
         //String deviceId = "354984054602948";
         //String deviceId = "454984054602948";
 
         setToolbar();
-        run();
-        //new RestOperation().execute(UrlRepository.URL_ImeiIsExist, deviceId);
+        new RestOperation().execute(UrlRepository.URL_ImeiIsExist, deviceId);
     }
 
     public void run() {
         try {
             // Sleeping
             Thread.sleep(SLEEP_TIME*2000);
-            startActivity(new Intent(this, LoginActivity.class));
+            //startActivity(new Intent(this, LoginActivity.class));
         } catch (Exception e) {
 
         }
