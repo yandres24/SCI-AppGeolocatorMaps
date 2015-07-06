@@ -46,6 +46,7 @@ import com.sci.www.sci_appgeolocator.Classes.DrawerItem;
 import com.sci.www.sci_appgeolocator.Classes.GpsBo;
 import com.sci.www.sci_appgeolocator.Utils.CircleTransform;
 import com.sci.www.sci_appgeolocator.Utils.ItemClickSupport;
+import com.sci.www.sci_appgeolocator.Services.InsertMapping;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -93,6 +94,9 @@ public class HomeActivity extends ActionBarActivity {
 
     //Classes
     private GpsBo classGps;
+
+    //Services
+    private InsertMapping MappingService;
 
     //Shared Preferences
     SharedPreferences sharedPreferences;
@@ -326,6 +330,8 @@ public class HomeActivity extends ActionBarActivity {
                 String Hora = "" + location.getTime();
                 String EstadoGps = "" + GpsStatus.GPS_EVENT_SATELLITE_STATUS;
 
+                //TareaWSInsertar tarea = new TareaWSInsertar();
+                //MappingService tarea1 = new MappingService();
                 TareaWSInsertar tarea = new TareaWSInsertar();
                 tarea.execute(
                         IdVisita.toString(),
