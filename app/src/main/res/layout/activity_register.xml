@@ -18,34 +18,4 @@
             android:layout_height="wrap_content"
             android:id="@+id/textView" />
     </RelativeLayout>
-
-    <!-- The navigation drawer -->
-
-    <com.sci.www.sci_appgeolocator.Utils.ScrimInsetsFrameLayout
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/scrimInsetsFrameLayout"
-        style="@style/drawer_width"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:layout_marginEnd="@dimen/drawer_margin"
-        android:layout_marginLeft="-64dp"
-        android:layout_marginRight="@dimen/drawer_margin"
-        android:layout_marginStart="-64dp"
-        android:clickable="true"
-        android:elevation="10dp"
-        android:fitsSystemWindows="true"
-        app:insetForeground="@color/status_bar_inset">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <!-- Your drawer content -->
-
-            <include layout="@layout/drawer" />
-
-        </LinearLayout>
-
-    </com.sci.www.sci_appgeolocator.Utils.ScrimInsetsFrameLayout>
 </android.support.v4.widget.DrawerLayout>

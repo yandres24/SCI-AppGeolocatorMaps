@@ -46,24 +46,27 @@ import java.util.ArrayList;
 
 
 public class MainActivity extends ActionBarActivity {
-    private static long SLEEP_TIME = 1;
+    private static long SLEEP_TIME = 2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-        String deviceId = telephonyManager.getDeviceId();
+        //String deviceId = telephonyManager.getDeviceId();
         //String deviceId = "354984054602948";
+        //String deviceId = "454984054602948";
 
         setToolbar();
-        new RestOperation().execute(UrlRepository.URL_ImeiIsExist, deviceId);
+        run();
+        //new RestOperation().execute(UrlRepository.URL_ImeiIsExist, deviceId);
     }
 
     public void run() {
         try {
             // Sleeping
             Thread.sleep(SLEEP_TIME*2000);
+            startActivity(new Intent(this, LoginActivity.class));
         } catch (Exception e) {
 
         }
@@ -184,7 +187,7 @@ public class MainActivity extends ActionBarActivity {
         }
         else{
             run();
-            startActivity(new Intent(this, RegisterActivity.class));
+            startActivity(new Intent(this, LoginActivity.class));
         }
     }
 
