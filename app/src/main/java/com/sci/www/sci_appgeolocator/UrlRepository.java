@@ -5,4 +5,5 @@ package com.sci.www.sci_appgeolocator;
  */
 public  class  UrlRepository {
     public  static  final String   URL_ImeiIsExist="http://186.147.35.26:8082/DeveloperServices/api/Imei/IsExist";
+    public  static  final String   URL_IsvalidLogin="http://186.147.35.26:8082/DeveloperServices/api/Usuarios/IsValidLogin";
 }

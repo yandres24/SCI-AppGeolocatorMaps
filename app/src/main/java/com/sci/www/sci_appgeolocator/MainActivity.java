@@ -28,6 +28,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.sci.www.sci_appgeolocator.Classes.DrawerItem;
+import com.sci.www.sci_appgeolocator.Classes.Login;
 import com.sci.www.sci_appgeolocator.Utils.ItemClickSupport;
 
 import org.apache.http.HttpResponse;
@@ -70,7 +71,7 @@ public class MainActivity extends ActionBarActivity {
 
         }
         // Start main activity
-        //Intent intent = new Intent(MainActivity.this, MainActivity.class);
+        //Intent intent = new Intent(MainActivity.thyis, MainActivity.class);
         //MainActivity.this.startActivity(intent);
         //MainActivity.this.finish();
     }

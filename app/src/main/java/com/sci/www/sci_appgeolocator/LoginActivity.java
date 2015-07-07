@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import com.sci.www.sci_appgeolocator.Classes.Login;
 //import android.annotation.TargetApi;
 
 import android.app.LoaderManager;
@@ -31,10 +32,14 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.SignInButton;
+import com.sci.www.sci_appgeolocator.Classes.Login;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +66,7 @@ public class LoginActivity extends ActionBarActivity {
     private SignInButton mPlusSignInButton;
     private View mSignOutButtons;
     private View mLoginFormView;
-
+    private Login login = new Login();
     @Override
     //protected void onCreate(Bundle savedInstanceState) {
         //super.onCreate(savedInstanceState);
@@ -167,37 +172,39 @@ public class LoginActivity extends ActionBarActivity {
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
+        // valida si la password es < 4 digitos y no esta null
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
         }
 
-        // Check for a valid email address.
+        // valida email si no esta null
         if (TextUtils.isEmpty(email)) {
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
-        } else if (!isEmailValid(email)) {
+        } else if (!isEmailValid(email)) { //Valida si es email
             mEmailView.setError(getString(R.string.error_invalid_email));
             focusView = mEmailView;
             cancel = true;
         }
 
         if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
+           focusView.requestFocus();
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+            //Login(email,password);
+           mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
         }
     }
 
+    private boolean Login(String user,String password ){
+
+
+        return false;
+    }
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
         return email.contains("@");
@@ -355,8 +362,8 @@ public class LoginActivity extends ActionBarActivity {
     }
 
     /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
+     * Representa la tarea de  authentication
+     * del usuario.
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
@@ -370,25 +377,18 @@ public class LoginActivity extends ActionBarActivity {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
 
-            try {
+            //try {
                 // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
+           //     Thread.sleep(2000);
+            //} catch (InterruptedException e) {
+             //   return false;
+            //}
 
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
 
-            // TODO: register the new account here.
-            return true;
+            boolean process = login.IsAutetication(mEmail.toString(), mPassword.toString());
+
+            return process;
         }
 
         @Override
@@ -397,10 +397,12 @@ public class LoginActivity extends ActionBarActivity {
             showProgress(false);
 
             if (success) {
-                finish();
+                //finish();
+                Toast.makeText(getBaseContext(),"Acceso Correcto", Toast.LENGTH_SHORT).show();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
+                Toast.makeText(getBaseContext(),getString(R.string.error_incorrect_password), Toast.LENGTH_SHORT).show();
             }
         }
 
