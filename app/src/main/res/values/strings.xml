@@ -30,7 +30,7 @@
     <string name="prompt_password">Contraseña</string>
     <string name="action_sign_in">Iniciar sesión</string>
     <string name="action_sign_in_short">Iniciar Sesión</string>
-    <string name="plus_sign_out">Cerrar sesión Google+</string>
+    <string name="plus_sign_out">Cerrar sesión Google</string>
     <string name="plus_disconnect">Desconectando de Google+</string>
     <string name="error_invalid_email">El correo electónico en invalido</string>
     <string name="error_invalid_password">La cantraseña es muy corta</string>

@@ -378,16 +378,13 @@ public class LoginActivity extends ActionBarActivity {
         @Override
         protected Boolean doInBackground(Void... params) {
 
-            //try {
-                // Simulate network access.
-           //     Thread.sleep(2000);
-            //} catch (InterruptedException e) {
-             //   return false;
-            //}
-
-
+            try {
+             //Simulate network access.
+                Thread.sleep(2000);
+           } catch (InterruptedException e) {
+              return false;
+           }
             boolean process = login.IsAutetication(mEmail.toString(), mPassword.toString());
-
             return process;
         }
 
