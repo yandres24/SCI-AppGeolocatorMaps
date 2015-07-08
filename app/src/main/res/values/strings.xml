@@ -37,4 +37,9 @@
     <string name="error_incorrect_password">La contraseña es Incorrecta</string>
     <string name="error_field_required">Este campo es Requerido.</string>
     <string name="title_activity_login">LoginActivity</string>
+
+    <string name="notified">Notificacion</string>
+    <string name="btnAlarmOFF">Desactivar</string>
+    <string name="btnAlarmON">Activar</string>
+    <string name="notify_string">Mostrar Notificacion</string>
 </resources>

@@ -1,7 +1,9 @@
 package com.sci.www.sci_appgeolocator;
 
-import android.app.AlertDialog;
-import android.content.ComponentName;
+import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,6 +11,7 @@ import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
@@ -46,25 +49,21 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.sci.www.sci_appgeolocator.Adapters.DrawerAdapter;
 import com.sci.www.sci_appgeolocator.Classes.DrawerItem;
 import com.sci.www.sci_appgeolocator.Classes.GpsBo;
-import com.sci.www.sci_appgeolocator.Services.MyService;
+import com.sci.www.sci_appgeolocator.Services.Notifications;
 import com.sci.www.sci_appgeolocator.Utils.CircleTransform;
 import com.sci.www.sci_appgeolocator.Utils.ItemClickSupport;
 import com.sci.www.sci_appgeolocator.Services.InsertMapping;
-
 import java.util.ArrayList;
-import java.util.Date;
-import android.app.Service;
 import com.squareup.picasso.Picasso;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class HomeActivity extends ActionBarActivity {
 
@@ -87,6 +86,9 @@ public class HomeActivity extends ActionBarActivity {
     RecyclerView recyclerViewDrawer1, recyclerViewDrawer2, recyclerViewDrawer3, recyclerViewDrawerSettings;
     LinearLayoutManager linearLayoutManager, linearLayoutManager2, linearLayoutManager3, linearLayoutManagerSettings;
     TypedValue typedValueColorPrimary, typedValueTextColorPrimary, typedValueTextColorControlHighlight, typedValueColorBackground;
+    private static PendingIntent pendingIntent;
+
+    Button m_btnAlarma = null;
 
     //Variables
     float drawerHeight, scrollViewHeight;
@@ -96,13 +98,36 @@ public class HomeActivity extends ActionBarActivity {
     LocationManager locationManager = null;
 
     //Classes
-    private GpsBo classGps;
+    private GpsBo classGps = new GpsBo();
+    private Notifications  serviceNotifications = new Notifications();
 
     //Services
-    private InsertMapping mBoundService;
+    private InsertMapping mBoundService = new InsertMapping();
+    private Timer timer;
 
     //Shared Preferences
     SharedPreferences sharedPreferences;
+
+    // Notification ID to allow for future updates
+    private static final int MY_NOTIFICATION_ID = 1;
+
+    // Notification Count
+    private int mNotificationCount;
+
+    // Notification Text Elements
+    private final CharSequence tickerText = "Prueba!";
+    private final CharSequence contentTitle = "Prueba Notificacion Geolocalizador";
+    private final CharSequence contentText = "Prueba Usted esta siendo notificado.!";
+
+    // Notification Action Elements
+    private Intent mNotificationIntent;
+    private PendingIntent mContentIntent;
+
+    // Notification Sound and Vibration on Arrival
+    private Uri soundURI = Uri
+            .parse("android.resource://course.examples.notification.statusbar/"
+                    + R.raw.alarm_rooster);
+    private long[] mVibratePattern = { 0, 200, 200, 300 };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,13 +146,32 @@ public class HomeActivity extends ActionBarActivity {
         setupNavigationDrawer();
         setupMap();
         setupListView();
-        btnActualizar = (Button)findViewById(R.id.BtnActualizar);
-        btnActualizar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setupMap();
-            }
-        });
+
+        //btnActualizar = (Button)findViewById(R.id.BtnActualizar);
+        //btnActualizar.setOnClickListener(new View.OnClickListener() {
+            //@Override
+            //public void onClick(View v) {
+                //setupMap();
+            //}
+        //});
+
+        try {
+            timer = new Timer();
+            SecondPlanTaskNotifications servicioNotificacion = new SecondPlanTaskNotifications();
+            long timeEjecution = 600000;
+            timer.scheduleAtFixedRate(servicioNotificacion, 0, timeEjecution);
+        }
+        catch (Exception ex)
+        {
+            Log.e("ServicioNotificaciones","Error!", ex);
+        }
+    }
+
+    class SecondPlanTaskNotifications extends TimerTask{
+        @Override
+        public void run(){
+            EjecutarNotificacion();
+        }
     }
 
     //Cargar lista direcciones
@@ -210,23 +254,6 @@ public class HomeActivity extends ActionBarActivity {
                         Toast.makeText(getApplicationContext(), "Latitud:  " + Latitud + ", Longitud: " + Longitud, Toast.LENGTH_LONG).show();
                     }
                 });
-
-                //listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                //@Override
-                //public void onItemClick(AdapterView<?> parent, View view, int position,
-                //long id) {
-
-                //String item = ((TextView)view).getText().toString();
-
-                //Toast.makeText(getBaseContext(), item, Toast.LENGTH_LONG).show();
-
-                //}
-                //});
-                //ArrayAdapter<String> adaptador =
-                //new ArrayAdapter<String>(MainActivity.this,
-                //android.R.layout.simple_list_item_1, visitas);
-
-                //ListDirec.setAdapter(adaptador);
             }
         }
     }
@@ -257,9 +284,7 @@ public class HomeActivity extends ActionBarActivity {
             else{
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
             }
-            updateLocation(mapa.getMyLocation());
-            locationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER, 200000, 0, locationListener);
+            //updateLocation(mapa.getMyLocation());
         }
         catch(Exception ex){
             Log.e("Error", ex.getMessage());
@@ -288,20 +313,6 @@ public class HomeActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void onGpsStatus(int event) {
-        Log.e("onGpsStatusChanged", event + "");
-        switch (event) {
-            case (GpsStatus.GPS_EVENT_SATELLITE_STATUS):
-                System.out.println(GpsStatus.GPS_EVENT_SATELLITE_STATUS);
-            case GpsStatus.GPS_EVENT_STARTED:
-                Log.e("onGpsStatusChanged", "GPS_EVENT_STARTED");
-                break;
-            case GpsStatus.GPS_EVENT_STOPPED:
-                Log.e("onGpsStatusChanged", "GPS_EVENT_STOPPED");
-                break;
-        }
-    }
-
     //Actualizar Ubicacion
     private void updateLocation(Location location) {
         try {
@@ -310,64 +321,36 @@ public class HomeActivity extends ActionBarActivity {
                 location = mapa.getMyLocation();
                 //navigator.geolocation.getCurrentPosition(funcExito, funcError, opciones);
                 String locationText = "Latitud :" + location.getLatitude() + "/ Longitud :" + location.getLongitude() +
-                        "/ Velocidad: " + location.getSpeed() + "/ Altitud: " + location.getAltitude() + "/ Status: " + GpsStatus.GPS_EVENT_SATELLITE_STATUS;
+                        "/ Velocidad: " + location.getSpeed() + "/ Altitud: " + location.getAltitude() + "/ Status: " + classGps.onGpsStatus(GpsStatus.GPS_EVENT_SATELLITE_STATUS);;
 
-                //LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                //mapa.addMarker(new MarkerOptions().position(latLng)).setTitle("Aqui estoy Yo");
-
-                //LatLngBounds bounds = new LatLngBounds(latLng, latLng);
-                //mapa.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0));
-
-                onGpsStatus(GpsStatus.GPS_EVENT_SATELLITE_STATUS);
                 tv.setText(locationText);
 
-                String IdVisita = "1";
-                String IdUsuario = "354984054602948".toString();
-                String Imei = deviceId;
-                String Longitud = "" + location.getLongitude();
-                String Latitud = "" + location.getLatitude();
-                String Velocidad = "" + location.getSpeed();
-                String Altitud = "" + location.getAltitude();
-                String Rumbo = "-53.000000";
-                String Fecha = "" + location.getTime();
-                String Hora = "" + location.getTime();
-                String EstadoGps = "" + GpsStatus.GPS_EVENT_SATELLITE_STATUS;
+                //String IdVisita = "1";
+                //String IdUsuario = "354984054602948".toString();
+                //String Imei = deviceId;
+                //String Longitud = "" + location.getLongitude();
+                //String Latitud = "" + location.getLatitude();
+                //String Velocidad = "" + location.getSpeed();
+                //String Altitud = "" + location.getAltitude();
+                //String Rumbo = "-53.000000";
+                //String Fecha = "" + location.getTime();
+                //String Hora = "" + location.getTime();
+                //String EstadoGps = "" + GpsStatus.GPS_EVENT_SATELLITE_STATUS;
 
-                // use this to start and trigger a service
-                Intent i= new Intent(this, MyService.class);
-                // potentially add data to the intent
-                i.putExtra("KEY1", "Value to be used by the service");
-                this.startService(i);
+                //boolean parameterInyection = mBoundService.ParametersInyection(IdVisita.toString(), IdUsuario.toString(), Imei.toString(), Longitud.toString(),
+                  //Latitud.toString(), Velocidad.toString(), Altitud.toString(), Rumbo.toString(), Fecha.toString(), Hora.toString(), EstadoGps.toString());
 
-                Intent i2= new Intent(this, InsertMapping.class);
-                i2.putExtra(IdVisita,IdVisita.toString());
-                i2.putExtra(IdUsuario, IdVisita.toString());
-                i2.putExtra(Imei,IdVisita.toString());
-                i2.putExtra(Longitud,IdVisita.toString());
-                i2.putExtra(Latitud,IdVisita.toString());
-                i2.putExtra(Velocidad,IdVisita.toString());
-                i2.putExtra(Altitud,IdVisita.toString());
-                i2.putExtra(Rumbo,IdVisita.toString());
-                i2.putExtra(Fecha,IdVisita.toString());
-                i2.putExtra(Hora,IdVisita.toString());
-                i2.putExtra(EstadoGps,IdVisita.toString());
-                this.startService(i2);
-
-                //MappingService tarea1 = new MappingService();
-                //TareaWSInsertar tarea = new TareaWSInsertar();
-                //tarea.execute(
-                        //IdVisita.toString(),
-                        //IdUsuario.toString(),
-                        //Imei.toString(),
-                        //Longitud.toString(),
-                        //Latitud.toString(),
-                        //Velocidad.toString(),
-                        //Altitud.toString(),
-                        //Rumbo.toString(),
-                        //Fecha.toString(),
-                        //Hora.toString(),
-                        //EstadoGps.toString());
-
+                //if(parameterInyection == true)
+                //{
+                    //PendingIntent pendingResult = createPendingResult(
+                            //0, new Intent(), 0);
+                    //Intent intent = new Intent(getApplicationContext(), InsertMapping.class);
+                    //startService(intent);
+                //}
+                //else
+                //{
+                    //tv.setText("Sin datos");
+                //}
             } else {
                 tv.setText("Sin datos");
             }
@@ -377,84 +360,42 @@ public class HomeActivity extends ActionBarActivity {
         }
     }
 
-    //Tarea As íncrona para llamar al WS de inserción en segundo plano
-    public class TareaWSInsertar extends AsyncTask<String,Integer,Boolean> {
-        AlertDialog.Builder alertDialog=new AlertDialog.Builder(HomeActivity.this);
-        protected Boolean doInBackground(String... params) {
-            boolean resul = true;
+    private void EjecutarNotificacion()
+    {
+        try {
+            //Intent myIntent = new Intent(HomeActivity.this, Notifications.class);
+            //pendingIntent = PendingIntent.getService(HomeActivity.this, 0, myIntent, 0);
+            Class<HomeActivity> activity = HomeActivity.class;
+            mNotificationIntent = new Intent(getApplicationContext(),
+                    activity);
+            mContentIntent = PendingIntent.getActivity(getApplicationContext(), 0,
+                    mNotificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
 
-            HttpClient httpClient = new DefaultHttpClient();
-            //HttpPost post = new HttpPost("http://192.168.0.100:8082/DeveloperServices/api/Usuarios/InsertAgente");
-            HttpPost post = new HttpPost("http://186.147.35.26:8082/DeveloperServices/api/Trazo/InsertTrazoVisita");
-            post.setHeader("content-type", "application/json");
+            Notification.Builder notificationBuilder = new Notification.Builder(
+                    getApplicationContext())
+                    .setTicker(tickerText)
+                    .setSmallIcon(android.R.drawable.stat_sys_warning)
+                    .setAutoCancel(true)
+                    .setContentTitle(contentTitle)
+                    .setContentText(
+                            contentText + " (" + ++mNotificationCount + ")")
+                    .setContentIntent(mContentIntent).setSound(soundURI)
+                    .setVibrate(mVibratePattern);
 
-            try
-            {
-                JSONObject data = new JSONObject();
+            // Pass the Notification to the NotificationManager:
+            NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.notify(MY_NOTIFICATION_ID,
+                    notificationBuilder.build());
+            //serviceNotifications.SendNotification();
 
-                //Construimos el objeto cliente en formato JSON
-                //dato.put("Id", Integer.parseInt(txtId.getText().toString()));
-                data.put("IdVisita", params[0]);
-                data.put("IdUsuario", params[1]);
-                data.put("Imei", params[2]);
-                data.put("Longitud", params[3]);
-                data.put("Latitud", params[4]);
-                data.put("Velocidad", params[5]);
-                data.put("Altitud", params[6]);
-                data.put("Rumbo", params[7]);
-                data.put("Fecha", params[8]);
-                data.put("Hora", params[9]);
-                data.put("EstadoGps", params[10]);
-
-                StringEntity entity = new StringEntity(data.toString());
-                post.setEntity(entity);
-
-                HttpResponse resp = httpClient.execute(post);
-                String respStr = EntityUtils.toString(resp.getEntity());
-                JSONArray respJSON = new JSONArray(respStr);
-
-                boolean state = false;
-                String httpStatusCode;
-                int codError;
-                String descripcionError;
-
-                for(int i=0; i<respJSON.length(); i++)
-                {
-                    JSONObject obj = respJSON.getJSONObject(i);
-
-                    state = obj.getBoolean("State");
-                    httpStatusCode = obj.getString("HttpStatusCode");
-                    codError = obj.getInt("CodError");
-                    descripcionError = obj.getString("DescripcionError");
-                }
-                resul = state;
-            }
-            catch(Exception ex)
-            {
-                Log.e("ServicioRest","Error!", ex);
-                resul = false;
-            }
-
-            return resul;
         }
-        protected void onPostExecute(Boolean result) {
-
-            if (result)
-            {
-                alertDialog.setMessage("Proceso Completado.");
-                alertDialog.show();
-            }
-            else{
-                alertDialog.setMessage("Proceso No Completado.");
-                alertDialog.show();
-            }
+        catch (Exception Ex){
+            Toast.makeText(HomeActivity.this, "A ocurrido un error", Toast.LENGTH_LONG).show();
         }
-        protected void Redirigir(){}
     }
 
     //Instalar Thema por defecto de la app :).
     public void setupTheme() {
-
         // TODO: Desde un servicio llenar las preferencias de tema del usuario
         sharedPreferences = getSharedPreferences("VALUES", MODE_PRIVATE);
         switch (sharedPreferences.getString("THEME", "INDIGOLIGHT")) {
