@@ -8,7 +8,7 @@ import android.util.Log;
  */
 public class GpsBo {
     //Status del Gps
-    public void onGpsStatus(int event) {
+    public int onGpsStatus(int event) {
         Log.e("onGpsStatusChanged", event + "");
         switch (event) {
             case (GpsStatus.GPS_EVENT_SATELLITE_STATUS):
@@ -20,5 +20,6 @@ public class GpsBo {
                 Log.e("onGpsStatusChanged", "GPS_EVENT_STOPPED");
                 break;
         }
+        return event;
     }
 }

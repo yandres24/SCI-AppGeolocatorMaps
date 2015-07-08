@@ -1,7 +1,5 @@
 package com.sci.www.sci_appgeolocator.Services;
 
-import android.app.AlertDialog;
-import android.app.IntentService;
 import android.app.Service;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -9,7 +7,6 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -19,24 +16,18 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class InsertMapping extends Service {
+public class RouteSkytechlogic extends Service {
     public static String IdVisita = "";
     public static String IdUsuario = "";
-    public static String Imei = "";
     public static String Longitud = "";
     public static String Latitud = "";
-    public static String Velocidad = "";
-    public static String Altitud = "";
-    public static String Rumbo = "";
     public static String Fecha = "";
-    public static String Hora = "";
-    public static String EstadoGps = "";
     public boolean resultPost = false;
 
     @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
-        return null;
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     @Override
@@ -45,22 +36,17 @@ public class InsertMapping extends Service {
         Log.i(getClass().getSimpleName(), "Creating service");
     }
 
-    public boolean ParametersInyection(String sIdVisita, String sIdUsuario, String sImei, String sLongitud,
-                                       String sLatitud, String sVelocidad, String sAltitud, String sRumbo,
-                                       String sFecha, String sHora, String sEstadoGps)
+    public RouteSkytechlogic() {
+    }
+
+    public boolean ParametersInyection(String sIdVisita, String sIdUsuario, String sLongitud, String sLatitud, String sFecha)
     {
         try{
             IdVisita = sIdVisita;
             IdUsuario = sIdUsuario;
-            Imei = sImei;
             Longitud = sLongitud;
             Latitud = sLatitud;
-            Velocidad = sVelocidad;
-            Altitud = sAltitud;
-            Rumbo = sRumbo;
             Fecha = sFecha;
-            Hora = sHora;
-            EstadoGps = sEstadoGps;
         }
         catch(Exception ex)
         {
@@ -75,7 +61,7 @@ public class InsertMapping extends Service {
         try {
             super.onStartCommand(intent, flags, startId);
             DoBackgroundTask entity = new DoBackgroundTask();
-            entity.execute(IdVisita, IdUsuario, Imei, Longitud, Latitud, Velocidad, Altitud, Rumbo, Fecha, Hora, EstadoGps);
+            entity.execute(IdVisita, IdUsuario, Longitud, Latitud, Fecha);
             if (resultPost = true) {
                 Toast.makeText(this, "Insertado", Toast.LENGTH_SHORT).show();
                 return super.onStartCommand(intent, flags, startId);
@@ -107,15 +93,11 @@ public class InsertMapping extends Service {
                 //Construimos el objeto cliente en formato JSON
                 data.put("IdVisita", params[0]);
                 data.put("IdUsuario", params[1]);
-                data.put("Imei", params[2]);
-                data.put("Longitud", params[3]);
-                data.put("Latitud", params[4]);
-                data.put("Velocidad", params[5]);
-                data.put("Altitud", params[6]);
-                data.put("Rumbo", params[7]);
-                data.put("Fecha", params[8]);
-                data.put("Hora", params[9]);
-                data.put("EstadoGps", params[10]);
+                data.put("Longitud", params[2]);
+                data.put("Latitud", params[3]);
+                data.put("Fecha", params[4]);
+                data.put("Hora", params[5]);
+                data.put("EstadoGps", params[6]);
 
                 StringEntity entity = new StringEntity(data.toString());
                 post.setEntity(entity);
@@ -153,7 +135,7 @@ public class InsertMapping extends Service {
 
         @Override
         protected void onPostExecute(String result) {
-        super.onPostExecute(result);
+            super.onPostExecute(result);
             if(result == "true")
             {
                 resultPost = true;
@@ -162,4 +144,3 @@ public class InsertMapping extends Service {
         }
     }
 }
-

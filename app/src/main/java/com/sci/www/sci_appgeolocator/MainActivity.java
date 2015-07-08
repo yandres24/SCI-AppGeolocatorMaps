@@ -54,9 +54,9 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-        //String deviceId = telephonyManager.getDeviceId();
+        String deviceId = telephonyManager.getDeviceId();
         //String deviceId = "354984054602948";
-        String deviceId = "454984054602948";
+        //String deviceId = "454984054602948";
 
         setToolbar();
         new RestOperation().execute(UrlRepository.URL_ImeiIsExist, deviceId);
