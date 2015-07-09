@@ -29,6 +29,7 @@ import android.widget.TextView;
 import com.google.android.gms.maps.GoogleMap;
 import com.sci.www.sci_appgeolocator.Classes.DrawerItem;
 import com.sci.www.sci_appgeolocator.Classes.Login;
+import com.sci.www.sci_appgeolocator.Repository.Urls;
 import com.sci.www.sci_appgeolocator.Utils.ItemClickSupport;
 
 import org.apache.http.HttpResponse;
@@ -59,7 +60,7 @@ public class MainActivity extends ActionBarActivity {
         //String deviceId = "454984054602948";
 
         setToolbar();
-        new RestOperation().execute(UrlRepository.URL_ImeiIsExist, deviceId);
+        new RestOperation().execute(Urls.URL_ImeiIsExist, deviceId);
     }
 
     public void run() {
@@ -70,8 +71,6 @@ public class MainActivity extends ActionBarActivity {
         } catch (Exception e) {
 
         }
-        // Start main activity
-        //Intent intent = new Intent(MainActivity.thyis, MainActivity.class);
         //MainActivity.this.startActivity(intent);
         //MainActivity.this.finish();
     }

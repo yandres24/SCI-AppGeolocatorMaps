@@ -8,7 +8,7 @@ import android.os.AsyncTask;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
-
+import com.sci.www.sci_appgeolocator.Repository.Urls;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -99,7 +99,7 @@ public class InsertMapping extends Service {
             //Tarea Asincrona para llamar al WS de insercion en segundo plano
             String resul = "false";
             HttpClient httpClient = new DefaultHttpClient();
-            HttpPost post = new HttpPost("http://186.147.35.26:8082/DeveloperServices/api/Trazo/InsertTrazoVisita");
+            HttpPost post = new HttpPost(Urls.URL_InsertMapping);
             post.setHeader("content-type", "application/json");
 
             try {

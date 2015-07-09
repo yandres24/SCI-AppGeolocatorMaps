@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
-
+import com.sci.www.sci_appgeolocator.Repository.Urls;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -16,6 +16,10 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class RouteSkytechlogic extends Service {
     public static String IdVisita = "";
     public static String IdUsuario = "";
@@ -23,6 +27,8 @@ public class RouteSkytechlogic extends Service {
     public static String Latitud = "";
     public static String Fecha = "";
     public boolean resultPost = false;
+    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    Date date = new Date();
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -63,7 +69,7 @@ public class RouteSkytechlogic extends Service {
             DoBackgroundTask entity = new DoBackgroundTask();
             entity.execute(IdVisita, IdUsuario, Longitud, Latitud, Fecha);
             if (resultPost = true) {
-                Toast.makeText(this, "Insertado", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Ubicacion Realizada.", Toast.LENGTH_SHORT).show();
                 return super.onStartCommand(intent, flags, startId);
             } else {
                 Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
@@ -85,19 +91,17 @@ public class RouteSkytechlogic extends Service {
             //Tarea Asincrona para llamar al WS de insercion en segundo plano
             String resul = "false";
             HttpClient httpClient = new DefaultHttpClient();
-            HttpPost post = new HttpPost("http://186.147.35.26:8082/DeveloperServices/api/Trazo/InsertTrazoVisita");
+            HttpPost post = new HttpPost(Urls.URL_InsertRouteSkytechlogic);
             post.setHeader("content-type", "application/json");
 
             try {
                 JSONObject data = new JSONObject();
                 //Construimos el objeto cliente en formato JSON
-                data.put("IdVisita", params[0]);
-                data.put("IdUsuario", params[1]);
-                data.put("Longitud", params[2]);
-                data.put("Latitud", params[3]);
-                data.put("Fecha", params[4]);
-                data.put("Hora", params[5]);
-                data.put("EstadoGps", params[6]);
+                data.put("id_punto_destino", params[0]);
+                data.put("id_objeto_externo", params[1]);
+                data.put("latitud", params[2]);
+                data.put("longitud", params[3]);
+                data.put("fecha", params[4]);
 
                 StringEntity entity = new StringEntity(data.toString());
                 post.setEntity(entity);
