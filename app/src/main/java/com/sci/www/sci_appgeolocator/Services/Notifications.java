@@ -6,13 +6,21 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.location.GpsStatus;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.sci.www.sci_appgeolocator.Classes.NotifyManager;
 import com.sci.www.sci_appgeolocator.HomeActivity;
+import com.sci.www.sci_appgeolocator.MainActivity;
 import com.sci.www.sci_appgeolocator.R;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Notifications extends Service {
     // Notification ID to allow for future updates
@@ -36,58 +44,67 @@ public class Notifications extends Service {
                     + R.raw.alarm_rooster);
     private long[] mVibratePattern = { 0, 200, 200, 300 };
 
+    private Context ctx;
+    private Timer mTimer = null;
+    private int countRept = 0;
+    public String arrayTrama = null;
+
     @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
+    public IBinder onBind(Intent arg0) {
         return null;
     }
 
     @Override
-    public void onCreate() {
+    public void onCreate(){
         super.onCreate();
-        Log.i(getClass().getSimpleName(), "Creating service");
+        this.mTimer = new Timer();
+        this.mTimer.scheduleAtFixedRate(
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        ejecutarTarea();
+                        countRept = countRept + 1;
+                    }
+                }
+                , 0, 1000 * 60);
     }
 
-
-    public int onStartCommand(Intent intent, int flags, int startId)  {
+    private void ejecutarTarea(){
         try {
-            super.onStartCommand(intent, flags, startId);
-            SendNotification();
-            return super.onStartCommand(intent,flags,startId);
+            //TramaGps trama = new TramaGps();
+            //arrayTrama = trama.Trama().toString();
+            final String[] result = {null};
+
+            LocationManager mLocMan = null;
+            GpsStatus mStatus = null;
+            LocationManager lLocMan = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            mLocMan = lLocMan;
+            lLocMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (LocationListener) this);
+            //lLocMan.addGpsStatusListener(this);
+            //lLocMan.addNmeaListener(this);
+            lLocMan.addNmeaListener(new GpsStatus.NmeaListener() {
+                public void onNmeaReceived(long timestamp, String nmea) {
+                    try {
+                        result[0] = nmea;
+                    } catch (Exception e) {
+                        Log.e("TestGps", e.getMessage());
+                    }
+                }
+            });
+
+            Thread t = new Thread(new Runnable() {
+                public void run() {
+                    NotifyManager notify = new NotifyManager();
+                    notify.playNotification(getApplicationContext(),
+                            MainActivity.class, "Tienes una notificaci?n"
+                            , "Notificaci?n " + arrayTrama, R.drawable.abc_textfield_activated_mtrl_alpha, countRept);
+                }
+            });
+            t.start();
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            return super.onStartCommand(intent,flags,startId);
-        }
-    }
-
-    public void SendNotification()
-    {
-        try {
-            //Class<HomeActivity> activity = HomeActivity.class;
-            //mNotificationIntent = new Intent(getApplicationContext(),
-                    //activity);
-            //mContentIntent = PendingIntent.getActivity(getApplicationContext(), 0,
-                    //mNotificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
-
-            Notification.Builder notificationBuilder = new Notification.Builder(
-                    getApplicationContext())
-                    .setTicker(tickerText)
-                    .setSmallIcon(android.R.drawable.stat_sys_warning)
-                    .setAutoCancel(true)
-                    .setContentTitle(contentTitle)
-                    .setContentText(
-                            contentText + " (" + ++mNotificationCount + ")")
-                    .setContentIntent(mContentIntent).setSound(soundURI)
-                    .setVibrate(mVibratePattern);
-
-            // Pass the Notification to the NotificationManager:
-            NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            mNotificationManager.notify(MY_NOTIFICATION_ID,
-                    notificationBuilder.build());
-        }
-        catch(Exception ex){
-            Log.i(getClass().getSimpleName(), "Creating service");
+            System.out.println("Error " + ex);
         }
     }
 }

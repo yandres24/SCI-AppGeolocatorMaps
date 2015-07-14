@@ -21,14 +21,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class RouteSkytechlogic extends Service {
-    public static String IdVisita = "";
-    public static String IdUsuario = "";
-    public static String Longitud = "";
-    public static String Latitud = "";
+    public static String Imei = "";
+    public static String Trama = "";
+    public static String Evento = "";
+    public static String Mensaje = "";
     public static String Fecha = "";
     public boolean resultPost = false;
-    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-    Date date = new Date();
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -45,13 +43,13 @@ public class RouteSkytechlogic extends Service {
     public RouteSkytechlogic() {
     }
 
-    public boolean ParametersInyection(String sIdVisita, String sIdUsuario, String sLongitud, String sLatitud, String sFecha)
+    public boolean ParametersInyection(String sImei, String sTrama, String sEvento, String sMensaje, String sFecha)
     {
         try{
-            IdVisita = sIdVisita;
-            IdUsuario = sIdUsuario;
-            Longitud = sLongitud;
-            Latitud = sLatitud;
+            Imei = sImei;
+            Trama = sTrama;
+            Evento = sEvento;
+            Mensaje = sMensaje;
             Fecha = sFecha;
         }
         catch(Exception ex)
@@ -67,7 +65,7 @@ public class RouteSkytechlogic extends Service {
         try {
             super.onStartCommand(intent, flags, startId);
             DoBackgroundTask entity = new DoBackgroundTask();
-            entity.execute(IdVisita, IdUsuario, Longitud, Latitud, Fecha);
+            entity.execute(Imei, Trama, Evento, Mensaje, Fecha);
             if (resultPost = true) {
                 Toast.makeText(this, "Ubicacion Realizada.", Toast.LENGTH_SHORT).show();
                 return super.onStartCommand(intent, flags, startId);

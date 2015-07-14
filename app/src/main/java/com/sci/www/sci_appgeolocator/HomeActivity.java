@@ -23,6 +23,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
+import android.text.Layout;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -53,6 +54,9 @@ import com.sci.www.sci_appgeolocator.Services.Notifications;
 import com.sci.www.sci_appgeolocator.Utils.CircleTransform;
 import com.sci.www.sci_appgeolocator.Utils.ItemClickSupport;
 import com.sci.www.sci_appgeolocator.Services.InsertMapping;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import com.squareup.picasso.Picasso;
 import org.apache.http.HttpResponse;
@@ -62,8 +66,11 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import com.sci.www.sci_appgeolocator.Listeners.MyLocation;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import com.sci.www.sci_appgeolocator.Services.RouteSkytechlogic;
 
 public class HomeActivity extends ActionBarActivity {
 
@@ -93,17 +100,18 @@ public class HomeActivity extends ActionBarActivity {
     //Variables
     float drawerHeight, scrollViewHeight;
     int colorPrimary, textColorPrimary, colorControlHighlight, colorBackground;
+    private Timer timer;
 
     //Objetos Gps
     LocationManager locationManager = null;
 
     //Classes
     private GpsBo classGps = new GpsBo();
-    private Notifications  serviceNotifications = new Notifications();
 
     //Services
     private InsertMapping mBoundService = new InsertMapping();
-    private Timer timer;
+    private Notifications serviceNotifications = new Notifications();
+    private RouteSkytechlogic serviceRouteSkytechlogic = new RouteSkytechlogic();
 
     //Shared Preferences
     SharedPreferences sharedPreferences;
@@ -115,9 +123,9 @@ public class HomeActivity extends ActionBarActivity {
     private int mNotificationCount;
 
     // Notification Text Elements
-    private final CharSequence tickerText = "Prueba!";
-    private final CharSequence contentTitle = "Prueba Notificacion Geolocalizador";
-    private final CharSequence contentText = "Prueba Usted esta siendo notificado.!";
+    private CharSequence tickerText = "Prueba!";
+    private CharSequence contentTitle = "Prueba Notificacion Geolocalizador";
+    private CharSequence contentText = "Prueba Usted esta siendo notificado.!";
 
     // Notification Action Elements
     private Intent mNotificationIntent;
@@ -127,7 +135,7 @@ public class HomeActivity extends ActionBarActivity {
     private Uri soundURI = Uri
             .parse("android.resource://course.examples.notification.statusbar/"
                     + R.raw.alarm_rooster);
-    private long[] mVibratePattern = { 0, 200, 200, 300 };
+    private long[] mVibratePattern = {0, 200, 200, 300};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,35 +157,41 @@ public class HomeActivity extends ActionBarActivity {
 
         //btnActualizar = (Button)findViewById(R.id.BtnActualizar);
         //btnActualizar.setOnClickListener(new View.OnClickListener() {
-            //@Override
-            //public void onClick(View v) {
-                //setupMap();
-            //}
+        //@Override
+        //public void onClick(View v) {
+        //setupMap();
+        //}
         //});
-
         try {
             timer = new Timer();
-            SecondPlanTaskNotifications servicioNotificacion = new SecondPlanTaskNotifications();
-            long timeEjecution = 600000;
-            timer.scheduleAtFixedRate(servicioNotificacion, 0, timeEjecution);
-        }
-        catch (Exception ex)
-        {
-            Log.e("ServicioNotificaciones","Error!", ex);
+            //SecondPlanTaskNotifications servicioNotificacion = new SecondPlanTaskNotifications();
+            //long timeEjecution = 30000;
+            //timer.scheduleAtFixedRate(servicioNotificacion, 0, timeEjecution);
+            //SecondPlanTaskRoute servicioRuteo = new SecondPlanTaskRoute();
+            //timer.scheduleAtFixedRate(servicioRuteo, 0, timeEjecution);
+        } catch (Exception ex) {
+            Log.e("ServicioNotificaciones", "Error!", ex);
         }
     }
 
-    class SecondPlanTaskNotifications extends TimerTask{
+    class SecondPlanTaskNotifications extends TimerTask {
         @Override
-        public void run(){
+        public void run() {
             EjecutarNotificacion();
+        }
+    }
+
+    class SecondPlanTaskRoute extends TimerTask {
+        @Override
+        public void run() {
+            EjecutarInsercionRuteo();
         }
     }
 
     //Cargar lista direcciones
     private void setupListView() {
         // Obtener el IMEI del telefono
-        TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         deviceId = telephonyManager.getDeviceId();
 
         // TODO: A traves del IEMI de l telefono verificar las visitas del usuario
@@ -188,7 +202,7 @@ public class HomeActivity extends ActionBarActivity {
     }
 
     //Tarea Asincrona para cargar la lista de las direcciones dependientdo el usuario
-    private class TareaWSListar extends AsyncTask<String,Integer,Boolean> {
+    private class TareaWSListar extends AsyncTask<String, Integer, Boolean> {
 
         private String[] visitas;
         private String[] posiciones;
@@ -204,8 +218,7 @@ public class HomeActivity extends ActionBarActivity {
             del.setHeader("content-type", "application/json");
             HttpClient httpClient = new DefaultHttpClient();
 
-            try
-            {
+            try {
                 HttpResponse resp = httpClient.execute(del);
                 String respStr = EntityUtils.toString(resp.getEntity());
 
@@ -214,8 +227,7 @@ public class HomeActivity extends ActionBarActivity {
                 visitas = new String[respJSON.length()];
                 posiciones = new String[respJSON.length()];
 
-                for(int i=0; i<respJSON.length(); i++)
-                {
+                for (int i = 0; i < respJSON.length(); i++) {
                     JSONObject obj = respJSON.getJSONObject(i);
 
                     int idVisitaPk = obj.getInt("progvis_IdVisita_Pk");
@@ -226,10 +238,8 @@ public class HomeActivity extends ActionBarActivity {
                     visitas[i] = "" + idVisitaPk + "-" + Direccion;
                     posiciones[i] = Latitud + "," + Longitud;
                 }
-            }
-            catch(Exception ex)
-            {
-                Log.e("ServicioRest","Error!", ex);
+            } catch (Exception ex) {
+                Log.e("ServicioRest", "Error!", ex);
                 resul = false;
             }
 
@@ -238,11 +248,10 @@ public class HomeActivity extends ActionBarActivity {
 
         protected void onPostExecute(Boolean result) {
 
-            if (result)
-            {
+            if (result) {
                 //Rellenamos la lista con los nombres de los clientes
                 //Rellenamos la lista con los resultados
-                ArrayAdapter<String> adapter= new ArrayAdapter<String>(HomeActivity.this,android.R.layout.simple_list_item_single_choice,visitas);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(HomeActivity.this, android.R.layout.simple_list_item_single_choice, visitas);
                 listView.setAdapter(adapter);
 
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -266,27 +275,56 @@ public class HomeActivity extends ActionBarActivity {
         //mapa.setMapType(GoogleMap.MAP_TYPE_HYBRID);
         mapa.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mapa.setMyLocationEnabled(true);
-        locationManager = (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         LocationListener locationListener = new LocationListener() {
 
             public void onLocationChanged(Location location) {
                 updateLocation(location);
             }
-            public void onStatusChanged(String provider, int status, Bundle extras) { }
-            public void onProviderEnabled(String provider) { }
-            public void onProviderDisabled(String provider) {}
-        };
-        try{
-            boolean isActive = locationManager.isProviderEnabled((LocationManager.GPS_PROVIDER));
-            if(isActive){
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+
+            public void onStatusChanged(String provider, int status, Bundle extras) {
             }
-            else{
+
+            public void onProviderEnabled(String provider) {
+            }
+
+            public void onProviderDisabled(String provider) {
+            }
+        };
+        try {
+            boolean isActive = locationManager.isProviderEnabled((LocationManager.GPS_PROVIDER));
+            locationManager.addNmeaListener(new GpsStatus.NmeaListener() {
+                public void onNmeaReceived(long timestamp, String nmea) {
+                try {
+                    String[] data = nmea.split(",");
+                    // GPGSV,GPGSA,GPRMC,GPVTG,GPGGA
+                    if (data[0].equals("$GPGSA")) {
+                        String GPGSA = nmea.trim();
+                    } else if (data[0].equals("$GPRMC")) {
+                        String GPRMC = nmea.trim();
+                    } else if (data[0].equals("$GPVTG")) {
+                        String GPVTG = nmea.trim();
+                    } else if (data[0].equals("$GPGGA")) {
+                        String GPGGA = nmea.trim();
+                    }else if (data[0].equals("$GPRMA")) {
+                        String GPRMA = nmea.trim();
+                    }else if (data[0].equals("$GPGSV")) {
+                        String GPGSV = nmea.trim();
+                        int messageNum = Integer.valueOf(data[2]);
+                        int Mensajes = messageNum;
+                    }
+                } catch (Exception e) {
+                Log.e("TestGps", e.getMessage());
+                }
+                }
+                });
+            if (isActive) {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+            } else {
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
             }
             //updateLocation(mapa.getMyLocation());
-        }
-        catch(Exception ex){
+        } catch (Exception ex) {
             Log.e("Error", ex.getMessage());
         }
     }
@@ -313,6 +351,7 @@ public class HomeActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
     //Actualizar Ubicacion
     private void updateLocation(Location location) {
         try {
@@ -321,7 +360,8 @@ public class HomeActivity extends ActionBarActivity {
                 location = mapa.getMyLocation();
                 //navigator.geolocation.getCurrentPosition(funcExito, funcError, opciones);
                 String locationText = "Latitud :" + location.getLatitude() + "/ Longitud :" + location.getLongitude() +
-                        "/ Velocidad: " + location.getSpeed() + "/ Altitud: " + location.getAltitude() + "/ Status: " + classGps.onGpsStatus(GpsStatus.GPS_EVENT_SATELLITE_STATUS);;
+                        "/ Velocidad: " + location.getSpeed() + "/ Altitud: " + location.getAltitude() + "/ Status: " + classGps.onGpsStatus(GpsStatus.GPS_EVENT_SATELLITE_STATUS);
+                ;
 
                 tv.setText(locationText);
 
@@ -338,30 +378,28 @@ public class HomeActivity extends ActionBarActivity {
                 //String EstadoGps = "" + GpsStatus.GPS_EVENT_SATELLITE_STATUS;
 
                 //boolean parameterInyection = mBoundService.ParametersInyection(IdVisita.toString(), IdUsuario.toString(), Imei.toString(), Longitud.toString(),
-                  //Latitud.toString(), Velocidad.toString(), Altitud.toString(), Rumbo.toString(), Fecha.toString(), Hora.toString(), EstadoGps.toString());
+                //Latitud.toString(), Velocidad.toString(), Altitud.toString(), Rumbo.toString(), Fecha.toString(), Hora.toString(), EstadoGps.toString());
 
                 //if(parameterInyection == true)
                 //{
-                    //PendingIntent pendingResult = createPendingResult(
-                            //0, new Intent(), 0);
-                    //Intent intent = new Intent(getApplicationContext(), InsertMapping.class);
-                    //startService(intent);
+                //PendingIntent pendingResult = createPendingResult(
+                //0, new Intent(), 0);
+                //Intent intent = new Intent(getApplicationContext(), InsertMapping.class);
+                //startService(intent);
                 //}
                 //else
                 //{
-                    //tv.setText("Sin datos");
+                //tv.setText("Sin datos");
                 //}
             } else {
                 tv.setText("Sin datos");
             }
-        }
-        catch(Exception ex){
+        } catch (Exception ex) {
             Log.e("Error", ex.getMessage());
         }
     }
 
-    private void EjecutarNotificacion()
-    {
+    private void EjecutarNotificacion() {
         try {
             //Intent myIntent = new Intent(HomeActivity.this, Notifications.class);
             //pendingIntent = PendingIntent.getService(HomeActivity.this, 0, myIntent, 0);
@@ -388,9 +426,81 @@ public class HomeActivity extends ActionBarActivity {
                     notificationBuilder.build());
             //serviceNotifications.SendNotification();
 
-        }
-        catch (Exception Ex){
+        } catch (Exception Ex) {
             Toast.makeText(HomeActivity.this, "A ocurrido un error", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void EjecutarInsercionRuteo() {
+        try {
+            locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+            //LocationListener locationListener = new MyLocation();
+            LocationListener locationListener = new LocationListener() {
+                public void onLocationChanged(Location location) {
+                    updateLocation(location);
+                }
+
+                public void onStatusChanged(String provider, int status, Bundle extras) {
+                }
+
+                public void onProviderEnabled(String provider) {
+                }
+
+                public void onProviderDisabled(String provider) {
+                }
+            };
+        } catch (Exception Ex) {
+            Toast.makeText(HomeActivity.this, "A ocurrido un error", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void SendLocationToService(Location location) {
+        try {
+            //DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+            Date date = new Date();
+            location = mapa.getMyLocation();
+
+            String longitud = "" + location.getLongitude();
+            String latitud = "" + location.getLatitude();
+            boolean parametersInyection = serviceRouteSkytechlogic.ParametersInyection("12345", "mto002", longitud, latitud, dateFormat.toString());
+            if (parametersInyection == true) {
+                Intent myIntent = new Intent(HomeActivity.this, RouteSkytechlogic.class);
+                pendingIntent = PendingIntent.getService(HomeActivity.this, 0, myIntent, 0);
+
+                CharSequence tickerText = "Ruteo!";
+                CharSequence contentTitle = "Se ha realizado una ubicación";
+                CharSequence contentText = "Notificación de segimiento.!";
+
+                Class<HomeActivity> activity = HomeActivity.class;
+                mNotificationIntent = new Intent(getApplicationContext(),
+                        activity);
+                mContentIntent = PendingIntent.getActivity(getApplicationContext(), 0,
+                        mNotificationIntent, Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                Notification.Builder notificationBuilder = new Notification.Builder(
+                        getApplicationContext())
+                        .setTicker(tickerText)
+                        .setSmallIcon(android.R.drawable.stat_sys_warning)
+                        .setAutoCancel(true)
+                        .setContentTitle(contentTitle)
+                        .setContentText(
+                                contentText + " (" + ++mNotificationCount + ")")
+                        .setContentIntent(mContentIntent).setSound(soundURI)
+                        .setVibrate(mVibratePattern);
+
+                // Pass the Notification to the NotificationManager:
+                NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                mNotificationManager.notify(MY_NOTIFICATION_ID,
+                        notificationBuilder.build());
+                //serviceNotifications.SendNotification();
+            } else {
+
+            }
+        }
+        catch (Exception ex)
+        {
+
         }
     }
 

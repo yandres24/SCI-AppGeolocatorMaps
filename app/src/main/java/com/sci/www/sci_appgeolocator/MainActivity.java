@@ -186,7 +186,7 @@ public class MainActivity extends ActionBarActivity {
         }
         else{
             run();
-            startActivity(new Intent(this, LoginActivity.class));
+            startActivity(new Intent(this, HomeActivity.class));
         }
     }
 
